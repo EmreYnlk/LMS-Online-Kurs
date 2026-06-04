@@ -1,0 +1,86 @@
+@model LMSPlatform.ViewModels.DersViewModel
+@{
+    ViewData["Title"] = "Yeni Ders";
+}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Yeni Ders Ekle</h4>
+                <small>@Model.KursBaslik</small>
+            </div>
+            <div class="card-body">
+                <form asp-action="Olustur" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="KursId" />
+                    <input type="hidden" asp-for="KursBaslik" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Baslik" class="form-label fw-bold"></label>
+                        <input asp-for="Baslik" class="form-control" placeholder="Ders başlığı" />
+                        <span asp-validation-for="Baslik" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Aciklama" class="form-label fw-bold"></label>
+                        <textarea asp-for="Aciklama" class="form-control" rows="3" placeholder="Bu derste neler öğreneceğiz?"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="VideoUrl" class="form-label fw-bold"></label>
+                        <input asp-for="VideoUrl" class="form-control" id="videoUrl"
+                               placeholder="https://www.youtube.com/watch?v=..." />
+                        <span asp-validation-for="VideoUrl" class="text-danger small"></span>
+                    </div>
+
+                    <div id="videoOnizleme" class="mb-3" style="display:none">
+                        <label class="form-label fw-bold">Ön İzleme</label>
+                        <div class="ratio ratio-16x9">
+                            <iframe id="previewFrame" src="" allowfullscreen class="rounded"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Sira" class="form-label fw-bold"></label>
+                        <input asp-for="Sira" class="form-control" type="number" min="1" style="width:100px" />
+                        <span asp-validation-for="Sira" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check2 me-1"></i>Ders Ekle
+                        </button>
+                        <a asp-action="Index" asp-route-kursId="@Model.KursId" class="btn btn-outline-secondary">İptal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function getEmbedUrl(url) {
+            if (!url) return '';
+            if (url.includes('youtube.com/watch?v=')) {
+                const id = url.split('v=')[1]?.split('&')[0];
+                return `https://www.youtube.com/embed/${id}`;
+            }
+            if (url.includes('youtu.be/')) {
+                const id = url.split('youtu.be/')[1]?.split('?')[0];
+                return `https://www.youtube.com/embed/${id}`;
+            }
+            return url;
+        }
+
+        document.getElementById('videoUrl').addEventListener('blur', function () {
+            const embedUrl = getEmbedUrl(this.value);
+            if (embedUrl) {
+                document.getElementById('previewFrame').src = embedUrl;
+                document.getElementById('videoOnizleme').style.display = 'block';
+            }
+        });
+    </script>
+}

@@ -1,0 +1,94 @@
+@model LMSPlatform.Models.Ders
+@{
+    ViewData["Title"] = Model.Baslik;
+    var kursDersler = ViewBag.KursDersler as List<LMSPlatform.Models.Ders> ?? new();
+    bool tamamlandi = ViewBag.Tamamlandi ?? false;
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Kurs" asp-action="Detay" asp-route-id="@Model.KursId">@Model.Kurs?.Baslik</a></li>
+                <li class="breadcrumb-item active">@Model.Baslik</li>
+            </ol>
+        </nav>
+
+        <div class="ratio ratio-16x9 mb-4 rounded overflow-hidden shadow">
+            <iframe src="@Model.YoutubeEmbedUrl"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+        </div>
+
+        <div class="card shadow mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h4>@Model.Sira. @Model.Baslik</h4>
+                        @if (!string.IsNullOrEmpty(Model.Aciklama))
+                        {
+                            <p class="text-muted">@Model.Aciklama</p>
+                        }
+                    </div>
+                    @if (!User.IsInRole("Admin") && !User.IsInRole("Egitmen"))
+                    {
+                        <form asp-controller="Ogrenci" asp-action="IlerlemeGuncelle" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="dersId" value="@Model.Id" />
+                            <input type="hidden" name="tamamlandi" value="@(!tamamlandi)" />
+                            <button type="submit" class="btn @(tamamlandi ? "btn-success" : "btn-outline-success")">
+                                @if (tamamlandi)
+                                {
+                                    <text><i class="bi bi-check-circle-fill me-1"></i>Tamamlandı</text>
+                                }
+                                else
+                                {
+                                    <text><i class="bi bi-circle me-1"></i>Tamamlandı Olarak İşaretle</text>
+                                }
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @{
+            var siradaki = kursDersler.Where(d => d.Sira > Model.Sira).OrderBy(d => d.Sira).FirstOrDefault();
+            var onceki = kursDersler.Where(d => d.Sira < Model.Sira).OrderByDescending(d => d.Sira).FirstOrDefault();
+        }
+        <div class="d-flex justify-content-between">
+            @if (onceki != null)
+            {
+                <a asp-action="DersIzle" asp-route-dersId="@onceki.Id" class="btn btn-outline-secondary">
+                    <i class="bi bi-chevron-left me-1"></i>Önceki Ders
+                </a>
+            }
+            else { <span></span> }
+
+            @if (siradaki != null)
+            {
+                <a asp-action="DersIzle" asp-route-dersId="@siradaki.Id" class="btn btn-primary">
+                    Sonraki Ders<i class="bi bi-chevron-right ms-1"></i>
+                </a>
+            }
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h6 class="mb-0"><i class="bi bi-list-ul me-2"></i>Ders Listesi</h6>
+            </div>
+            <div class="list-group list-group-flush" style="max-height:500px;overflow-y:auto">
+                @foreach (var ders in kursDersler.OrderBy(d => d.Sira))
+                {
+                    <a asp-action="DersIzle" asp-route-dersId="@ders.Id"
+                       class="list-group-item list-group-item-action @(ders.Id == Model.Id ? "active" : "")">
+                        <small>@ders.Sira. @ders.Baslik</small>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

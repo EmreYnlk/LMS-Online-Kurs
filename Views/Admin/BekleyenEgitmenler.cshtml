@@ -1,0 +1,51 @@
+@model IEnumerable<LMSPlatform.Models.ApplicationUser>
+@{
+    ViewData["Title"] = "Bekleyen Eğitmen Başvuruları";
+}
+<h2 class="mb-4"><i class="bi bi-person-check me-2"></i>Bekleyen Eğitmen Başvuruları</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle me-2"></i>Bekleyen eğitmen başvurusu bulunmuyor.
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var user in Model)
+        {
+            <div class="col-md-6">
+                <div class="card shadow-sm border-warning">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-person-circle fs-1 text-warning me-3"></i>
+                            <div>
+                                <h5 class="mb-0">@user.TamAd</h5>
+                                <p class="text-muted mb-0">@user.Email</p>
+                                <small class="text-muted">Kayıt: @user.KayitTarihi.ToString("dd.MM.yyyy")</small>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <form asp-action="EgitmenOnayla" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-check-circle me-1"></i>Onayla
+                                </button>
+                            </form>
+                            <form asp-action="EgitmenReddet" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Bu başvuruyu reddetmek istediğinizden emin misiniz?')">
+                                    <i class="bi bi-x-circle me-1"></i>Reddet
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

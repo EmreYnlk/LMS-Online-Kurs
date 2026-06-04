@@ -1,0 +1,62 @@
+@model LMSPlatform.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <h3 class="card-title text-center mb-4">
+                    <i class="bi bi-box-arrow-in-right me-2 text-primary"></i>Giriş Yap
+                </h3>
+
+                <form asp-action="Login" method="post">
+                    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="All" class="alert alert-danger" style="display:none"></div>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" placeholder="ornek@mail.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Sifre" class="form-label"></label>
+                        <input asp-for="Sifre" class="form-control" placeholder="••••••" />
+                        <span asp-validation-for="Sifre" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="BeniHatirla" class="form-check-input" />
+                        <label asp-for="BeniHatirla" class="form-check-label"></label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
+                </form>
+
+                <hr />
+                <p class="text-center mb-0">
+                    Hesabın yok mu?
+                    <a asp-action="Register">Kayıt Ol</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="card mt-3 border-warning">
+            <div class="card-body py-2">
+                <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Test hesabı: <strong>admin@lms.com</strong> / <strong>Admin123!</strong>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

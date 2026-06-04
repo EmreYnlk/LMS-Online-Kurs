@@ -1,0 +1,13 @@
+# Claude Code
+.claude/
+
+# .NET
+bin/
+obj/
+lms.db
+lms.db-shm
+lms.db-wal
+
+# VS/Rider
+.vs/
+*.user

@@ -1,0 +1,90 @@
+@model LMSPlatform.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h2 class="mb-4"><i class="bi bi-shield-check me-2 text-primary"></i>Admin Dashboard</h2>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary shadow">
+            <div class="card-body text-center">
+                <i class="bi bi-people fs-1"></i>
+                <h2 class="mt-2">@Model.ToplamKullanici</h2>
+                <p class="mb-0">Toplam Kullanıcı</p>
+            </div>
+            <div class="card-footer">
+                <a asp-action="Kullanicilar" class="text-white text-decoration-none">Görüntüle →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success shadow">
+            <div class="card-body text-center">
+                <i class="bi bi-collection-play fs-1"></i>
+                <h2 class="mt-2">@Model.ToplamKurs</h2>
+                <p class="mb-0">Toplam Kurs</p>
+            </div>
+            <div class="card-footer">
+                <a asp-action="TumKurslar" class="text-white text-decoration-none">Görüntüle →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-dark bg-warning shadow">
+            <div class="card-body text-center">
+                <i class="bi bi-hourglass-split fs-1"></i>
+                <h2 class="mt-2">@Model.BekleyenEgitmen</h2>
+                <p class="mb-0">Bekleyen Başvuru</p>
+            </div>
+            <div class="card-footer">
+                <a asp-action="BekleyenEgitmenler" class="text-dark text-decoration-none">Görüntüle →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info shadow">
+            <div class="card-body text-center">
+                <i class="bi bi-cart-check fs-1"></i>
+                <h2 class="mt-2">@Model.ToplamAbonelik</h2>
+                <p class="mb-0">Toplam Abonelik</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <a asp-action="BekleyenEgitmenler" class="card text-decoration-none text-dark shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <i class="bi bi-person-check fs-2 text-warning"></i>
+                <div>
+                    <h6 class="mb-0">Eğitmen Onayları</h6>
+                    <small class="text-muted">@Model.BekleyenEgitmen bekleyen başvuru</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a asp-controller="Kategori" asp-action="Index" class="card text-decoration-none text-dark shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <i class="bi bi-grid fs-2 text-primary"></i>
+                <div>
+                    <h6 class="mb-0">Kategori Yönetimi</h6>
+                    <small class="text-muted">Ekle, düzenle, sil</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a asp-action="Kullanicilar" class="card text-decoration-none text-dark shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <i class="bi bi-coin fs-2 text-success"></i>
+                <div>
+                    <h6 class="mb-0">Jeton Yönetimi</h6>
+                    <small class="text-muted">Kullanıcılara jeton ekle</small>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>

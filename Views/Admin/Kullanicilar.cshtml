@@ -1,0 +1,64 @@
+@model IEnumerable<LMSPlatform.ViewModels.KullaniciListeViewModel>
+@{
+    ViewData["Title"] = "Kullanıcılar";
+}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-people me-2"></i>Kullanıcılar</h2>
+</div>
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Ad Soyad</th>
+                <th>E-posta</th>
+                <th>Roller</th>
+                <th>Jeton</th>
+                <th>Eğitmen Durumu</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td><strong>@item.Kullanici.TamAd</strong></td>
+                    <td>@item.Kullanici.Email</td>
+                    <td>
+                        @foreach (var rol in item.Roller)
+                        {
+                            <span class="badge bg-@(rol == "Admin" ? "danger" : rol == "Egitmen" ? "success" : "secondary") me-1">@rol</span>
+                        }
+                    </td>
+                    <td>
+                        <span class="badge bg-warning text-dark">
+                            <i class="bi bi-coin me-1"></i>@item.Kullanici.JetonMiktari
+                        </span>
+                    </td>
+                    <td>
+                        @if (item.Kullanici.EgitmenTalebi)
+                        {
+                            @if (item.Kullanici.EgitmenOnaylandi)
+                            {
+                                <span class="badge bg-success">Onaylı</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Bekliyor</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted">-</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="JetonEkle" asp-route-userId="@item.Kullanici.Id"
+                           class="btn btn-sm btn-outline-warning">
+                            <i class="bi bi-coin me-1"></i>Jeton Ekle
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

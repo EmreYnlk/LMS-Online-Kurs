@@ -1,0 +1,164 @@
+@model LMSPlatform.ViewModels.KursDetayViewModel
+@{
+    ViewData["Title"] = Model.Kurs.Baslik;
+    var kurs = Model.Kurs;
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+        <li class="breadcrumb-item active">@kurs.Baslik</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            @if (!string.IsNullOrEmpty(kurs.ResimUrl))
+            {
+                <img src="@kurs.ResimUrl" class="card-img-top" style="max-height:300px;object-fit:cover" alt="@kurs.Baslik" />
+            }
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-secondary">@kurs.Kategori?.Ad</span>
+                    @if (kurs.Ucretsiz)
+                    {
+                        <span class="badge bg-success fs-6">Ücretsiz</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark fs-6">
+                            <i class="bi bi-coin me-1"></i>@kurs.Fiyat Jeton
+                        </span>
+                    }
+                </div>
+                <h2>@kurs.Baslik</h2>
+                <p class="text-muted">
+                    <i class="bi bi-person me-1"></i>@kurs.Egitmen?.TamAd &nbsp;|&nbsp;
+                    <i class="bi bi-calendar me-1"></i>@kurs.OlusturmaTarihi.ToString("dd.MM.yyyy") &nbsp;|&nbsp;
+                    <i class="bi bi-people me-1"></i>@kurs.AbonelikSayisi abone
+                </p>
+                <hr />
+                <p>@kurs.Aciklama</p>
+            </div>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-play-circle me-2"></i>Dersler (@kurs.Dersler.Count)</h5>
+                @if (Model.AbonemVar && kurs.Dersler.Any())
+                {
+                    @await Component.InvokeAsync("Ilerleme", new { kursId = kurs.Id })
+                }
+            </div>
+            <div class="list-group list-group-flush">
+                @if (!kurs.Dersler.Any())
+                {
+                    <div class="list-group-item text-muted">Henüz ders eklenmemiş.</div>
+                }
+                @foreach (var ders in kurs.Dersler.OrderBy(d => d.Sira))
+                {
+                    var ilerleme = Model.Ilerlemeler.FirstOrDefault(i => i.DersId == ders.Id);
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            @if (ilerleme?.Tamamlandi == true)
+                            {
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            }
+                            else
+                            {
+                                <i class="bi bi-play-circle text-muted me-2"></i>
+                            }
+                            <span>@ders.Sira. @ders.Baslik</span>
+                        </div>
+                        @if (Model.AbonemVar || User.IsInRole("Admin") || User.IsInRole("Egitmen"))
+                        {
+                            <a asp-controller="Ogrenci" asp-action="DersIzle" asp-route-dersId="@ders.Id"
+                               class="btn btn-sm btn-outline-primary">İzle</a>
+                        }
+                        else
+                        {
+                            <i class="bi bi-lock text-muted"></i>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow sticky-top" style="top:20px">
+            <div class="card-body text-center">
+                @if (!User.Identity!.IsAuthenticated)
+                {
+                    <p class="mb-3">Bu kursa katılmak için giriş yapın.</p>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary w-100">Giriş Yap</a>
+                }
+                else if (Model.AbonemVar)
+                {
+                    <div class="text-success mb-3">
+                        <i class="bi bi-check-circle-fill fs-1"></i>
+                        <h5 class="mt-2">Bu kursa kayıtlısınız!</h5>
+                    </div>
+                    @if (kurs.Dersler.Any())
+                    {
+                        <a asp-controller="Ogrenci" asp-action="DersIzle" asp-route-dersId="@kurs.Dersler.OrderBy(d => d.Sira).First().Id"
+                           class="btn btn-success w-100">
+                            <i class="bi bi-play-fill me-1"></i>Derse Devam Et
+                        </a>
+                    }
+                }
+                else if (User.IsInRole("Admin"))
+                {
+                    <div class="text-secondary mb-3">
+                        <i class="bi bi-shield-check fs-1"></i>
+                        <h5 class="mt-2">Admin Görünümü</h5>
+                    </div>
+                    <a asp-controller="Admin" asp-action="TumKurslar" class="btn btn-outline-secondary w-100">Tüm Kurslara Dön</a>
+                }
+                else if (User.IsInRole("Egitmen") && kurs.EgitmenId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                {
+                    <div class="text-info mb-3">
+                        <i class="bi bi-easel fs-1"></i>
+                        <h5 class="mt-2">Bu sizin kursunuz</h5>
+                    </div>
+                    <a asp-action="Duzenle" asp-route-id="@kurs.Id" class="btn btn-warning w-100 mb-2">Düzenle</a>
+                    <a asp-controller="Ders" asp-action="Index" asp-route-kursId="@kurs.Id" class="btn btn-outline-secondary w-100">Dersleri Yönet</a>
+                }
+                else
+                {
+                    <div class="mb-3">
+                        <h4>
+                            @if (kurs.Ucretsiz)
+                            {
+                                <span class="text-success">Ücretsiz</span>
+                            }
+                            else
+                            {
+                                <span><i class="bi bi-coin me-1"></i>@kurs.Fiyat Jeton</span>
+                            }
+                        </h4>
+                        @if (!kurs.Ucretsiz)
+                        {
+                            <small class="text-muted">Mevcut jetonunuz: @ViewBag.JetonMiktari</small>
+                        }
+                    </div>
+                    <form asp-controller="Ogrenci" asp-action="AboneOl" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="kursId" value="@kurs.Id" />
+                        <button type="submit" class="btn btn-primary w-100">
+                            @if (kurs.Ucretsiz)
+                            {
+                                <text><i class="bi bi-plus-circle me-1"></i>Ücretsiz Kaydol</text>
+                            }
+                            else
+                            {
+                                <text><i class="bi bi-coin me-1"></i>@kurs.Fiyat Jeton ile Satın Al</text>
+                            }
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

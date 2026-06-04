@@ -1,0 +1,11 @@
+@model int
+@{
+    int tamamlanan = ViewBag.Tamamlanan ?? 0;
+    int toplam = ViewBag.Toplam ?? 0;
+}
+<div class="d-flex align-items-center gap-2">
+    <div class="progress flex-grow-1" style="height:10px">
+        <div class="progress-bar bg-success" style="width:@Model%"></div>
+    </div>
+    <small class="text-white">%@Model (@tamamlanan/@toplam)</small>
+</div>

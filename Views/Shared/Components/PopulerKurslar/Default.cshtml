@@ -1,0 +1,19 @@
+@model IEnumerable<LMSPlatform.Models.Kurs>
+<div class="card mt-3">
+    <div class="card-header bg-danger text-white">
+        <i class="bi bi-fire me-1"></i>Popüler Kurslar
+    </div>
+    <div class="list-group list-group-flush">
+        @foreach (var kurs in Model)
+        {
+            <a asp-controller="Kurs" asp-action="Detay" asp-route-id="@kurs.Id"
+               class="list-group-item list-group-item-action py-2">
+                <div class="d-flex justify-content-between">
+                    <small class="fw-bold">@kurs.Baslik</small>
+                    <small class="text-muted">@kurs.AbonelikSayisi</small>
+                </div>
+                <small class="text-muted">@kurs.Egitmen?.TamAd</small>
+            </a>
+        }
+    </div>
+</div>

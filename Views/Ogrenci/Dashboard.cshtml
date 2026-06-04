@@ -1,0 +1,76 @@
+@model IEnumerable<LMSPlatform.Models.KursAbonelik>
+@{
+    ViewData["Title"] = "Kurslarım";
+    var ilerlemeler = ViewBag.Ilerlemeler as List<LMSPlatform.Models.DersIlerleme> ?? new();
+    var kullanici = ViewBag.Kullanici as LMSPlatform.Models.ApplicationUser;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-collection-play me-2"></i>Kurslarım</h2>
+    <div class="badge bg-warning text-dark fs-5">
+        <i class="bi bi-coin me-1"></i>@kullanici?.JetonMiktari Jeton
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="bi bi-inbox text-muted" style="font-size:5rem"></i>
+        <h4 class="mt-3">Henüz bir kursa kaydolmadınız.</h4>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-2">
+            <i class="bi bi-search me-1"></i>Kurslara Göz At
+        </a>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var abonelik in Model)
+        {
+            var kurs = abonelik.Kurs!;
+            var kursDersIds = kurs.Dersler.Select(d => d.Id).ToList();
+            var tamamlanan = ilerlemeler.Count(i => kursDersIds.Contains(i.DersId) && i.Tamamlandi);
+            var toplam = kurs.Dersler.Count;
+            var yuzde = toplam > 0 ? (tamamlanan * 100 / toplam) : 0;
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <span class="badge bg-secondary mb-2">@kurs.Kategori?.Ad</span>
+                        <h5 class="card-title">@kurs.Baslik</h5>
+                        <p class="text-muted small">@kurs.Egitmen?.TamAd</p>
+
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>İlerleme</span>
+                                <span>@tamamlanan / @toplam ders</span>
+                            </div>
+                            <div class="progress" style="height:8px">
+                                <div class="progress-bar bg-success" style="width:@yuzde%"></div>
+                            </div>
+                            <small class="text-muted">%@yuzde tamamlandı</small>
+                        </div>
+
+                        <small class="text-muted d-block mb-3">
+                            <i class="bi bi-calendar me-1"></i>@abonelik.AbonelikTarihi.ToString("dd.MM.yyyy") tarihinde kaydoldunuz
+                        </small>
+
+                        @if (kurs.Dersler.Any())
+                        {
+                            var ilkDers = kurs.Dersler.OrderBy(d => d.Sira).First();
+                            <a asp-controller="Ogrenci" asp-action="DersIzle" asp-route-dersId="@ilkDers.Id"
+                               class="btn btn-primary w-100">
+                                <i class="bi bi-play-fill me-1"></i>
+                                @(yuzde > 0 ? "Devam Et" : "Başla")
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted small">Henüz ders eklenmemiş.</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
