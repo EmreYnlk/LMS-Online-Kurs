@@ -5,8 +5,20 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Veritabani dizinini otomatik olustur (Azure'da D:\home\data\ ilk deploy'da yoktur)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Data Source=lms.db";
+
+var dbPath = connectionString
+    .Replace("Data Source=", "", StringComparison.OrdinalIgnoreCase)
+    .Trim();
+
+var dbDirectory = Path.GetDirectoryName(Path.GetFullPath(dbPath));
+if (!string.IsNullOrEmpty(dbDirectory))
+    Directory.CreateDirectory(dbDirectory);
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(connectionString));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
