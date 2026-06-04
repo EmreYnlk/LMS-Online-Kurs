@@ -5,46 +5,59 @@
     bool tamamlandi = ViewBag.Tamamlandi ?? false;
 }
 
-<div class="row">
-    <div class="col-md-8">
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
-                <li class="breadcrumb-item"><a asp-controller="Kurs" asp-action="Detay" asp-route-id="@Model.KursId">@Model.Kurs?.Baslik</a></li>
-                <li class="breadcrumb-item active">@Model.Baslik</li>
-            </ol>
-        </nav>
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="animate-fade-up">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index"><i class="bi bi-house me-1"></i>Ana Sayfa</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Kurs" asp-action="Detay" asp-route-id="@Model.KursId">@Model.Kurs?.Baslik</a></li>
+        <li class="breadcrumb-item active">@Model.Baslik</li>
+    </ol>
+</nav>
 
-        <div class="ratio ratio-16x9 mb-4 rounded overflow-hidden shadow">
-            <iframe src="@Model.YoutubeEmbedUrl"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen></iframe>
+<div class="row g-4">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- Video Player -->
+        <div class="card animate-fade-up mb-4" style="overflow:hidden;">
+            <div class="ratio ratio-16x9">
+                <iframe src="@Model.YoutubeEmbedUrl"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        style="border:none;"></iframe>
+            </div>
         </div>
 
-        <div class="card shadow mb-3">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <h4>@Model.Sira. @Model.Baslik</h4>
+        <!-- Lesson Info -->
+        <div class="card animate-fade-up-delay-1 mb-4">
+            <div class="card-body" style="padding:1.75rem;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                    <div style="flex:1;">
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+                            <span style="background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.2);color:var(--primary-light);padding:0.25rem 0.75rem;border-radius:var(--radius-full);font-size:0.78rem;font-weight:700;">
+                                Ders @Model.Sira
+                            </span>
+                        </div>
+                        <h4 style="margin:0 0 0.75rem;font-size:1.25rem;font-weight:800;letter-spacing:-0.3px;">@Model.Baslik</h4>
                         @if (!string.IsNullOrEmpty(Model.Aciklama))
                         {
-                            <p class="text-muted">@Model.Aciklama</p>
+                            <p style="color:var(--text-secondary);line-height:1.7;margin:0;">@Model.Aciklama</p>
                         }
                     </div>
+
                     @if (!User.IsInRole("Admin") && !User.IsInRole("Egitmen"))
                     {
                         <form asp-controller="Ogrenci" asp-action="IlerlemeGuncelle" method="post">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="dersId" value="@Model.Id" />
                             <input type="hidden" name="tamamlandi" value="@(!tamamlandi)" />
-                            <button type="submit" class="btn @(tamamlandi ? "btn-success" : "btn-outline-success")">
+                            <button type="submit" class="btn @(tamamlandi ? "btn-success" : "btn-outline-secondary")" style="white-space:nowrap;">
                                 @if (tamamlandi)
                                 {
-                                    <text><i class="bi bi-check-circle-fill me-1"></i>Tamamlandı</text>
+                                    <text><i class="bi bi-check-circle-fill me-2"></i>Tamamlandı</text>
                                 }
                                 else
                                 {
-                                    <text><i class="bi bi-circle me-1"></i>Tamamlandı Olarak İşaretle</text>
+                                    <text><i class="bi bi-circle me-2"></i>Tamamlandı İşaretle</text>
                                 }
                             </button>
                         </form>
@@ -53,19 +66,22 @@
             </div>
         </div>
 
+        <!-- Navigation -->
         @{
             var siradaki = kursDersler.Where(d => d.Sira > Model.Sira).OrderBy(d => d.Sira).FirstOrDefault();
             var onceki = kursDersler.Where(d => d.Sira < Model.Sira).OrderByDescending(d => d.Sira).FirstOrDefault();
         }
-        <div class="d-flex justify-content-between">
+        <div style="display:flex;justify-content:space-between;gap:1rem;" class="animate-fade-up-delay-2">
             @if (onceki != null)
             {
                 <a asp-action="DersIzle" asp-route-dersId="@onceki.Id" class="btn btn-outline-secondary">
                     <i class="bi bi-chevron-left me-1"></i>Önceki Ders
                 </a>
             }
-            else { <span></span> }
-
+            else
+            {
+                <span></span>
+            }
             @if (siradaki != null)
             {
                 <a asp-action="DersIzle" asp-route-dersId="@siradaki.Id" class="btn btn-primary">
@@ -75,17 +91,27 @@
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="card shadow">
-            <div class="card-header bg-dark text-white">
-                <h6 class="mb-0"><i class="bi bi-list-ul me-2"></i>Ders Listesi</h6>
+    <!-- Lesson List Sidebar -->
+    <div class="col-lg-4">
+        <div class="sidebar-card animate-fade-up-delay-1" style="position:sticky;top:90px;">
+            <div class="sidebar-header">
+                <i class="bi bi-list-ul"></i> Ders Listesi
+                <span class="ms-auto" style="font-weight:400;font-size:0.75rem;color:var(--text-muted);">@kursDersler.Count ders</span>
             </div>
-            <div class="list-group list-group-flush" style="max-height:500px;overflow-y:auto">
+            <div style="max-height:500px;overflow-y:auto;">
                 @foreach (var ders in kursDersler.OrderBy(d => d.Sira))
                 {
+                    var isActive = ders.Id == Model.Id;
                     <a asp-action="DersIzle" asp-route-dersId="@ders.Id"
-                       class="list-group-item list-group-item-action @(ders.Id == Model.Id ? "active" : "")">
-                        <small>@ders.Sira. @ders.Baslik</small>
+                       class="list-group-item list-group-item-action @(isActive ? "active" : "")">
+                        <span class="lesson-number" style="@(isActive ? "background:rgba(108,99,255,0.2);color:var(--primary-light);" : "")">
+                            @ders.Sira
+                        </span>
+                        <span style="font-size:0.85rem;">@ders.Baslik</span>
+                        @if (isActive)
+                        {
+                            <i class="bi bi-play-fill ms-auto" style="font-size:0.75rem;color:var(--primary-light);"></i>
+                        }
                     </a>
                 }
             </div>

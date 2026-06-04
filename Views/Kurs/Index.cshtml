@@ -2,61 +2,98 @@
 @{
     ViewData["Title"] = "Kurslarım";
 }
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-collection-play me-2"></i>Kurslarım</h2>
+
+<div class="page-header animate-fade-up">
+    <div class="page-header-left">
+        <h2><i class="bi bi-collection-play me-2" style="color:var(--primary-light);font-size:1.5rem;"></i>Kurslarım</h2>
+        <p>Oluşturduğunuz kursları yönetin</p>
+    </div>
     <a asp-action="Olustur" class="btn btn-primary">
-        <i class="bi bi-plus-circle me-1"></i>Yeni Kurs
+        <i class="bi bi-plus-circle me-2"></i>Yeni Kurs Oluştur
     </a>
 </div>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">
-        Henüz kurs oluşturmadınız.
-        <a asp-action="Olustur" class="alert-link">İlk kursunuzu oluşturun.</a>
+    <div class="card animate-fade-up" style="border-style:dashed !important;border-color:rgba(108,99,255,0.25) !important;">
+        <div class="card-body text-center py-5">
+            <div style="width:80px;height:80px;border-radius:50%;background:rgba(108,99,255,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+                <i class="bi bi-collection-play" style="font-size:2.25rem;color:var(--primary-light);opacity:0.5;"></i>
+            </div>
+            <h5 style="color:var(--text-secondary);margin-bottom:0.5rem;">Henüz kurs oluşturmadınız</h5>
+            <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.5rem;">İlk kursunuzu oluşturun ve öğrencilere ulaşın.</p>
+            <a asp-action="Olustur" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>İlk Kursumu Oluştur
+            </a>
+        </div>
     </div>
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Başlık</th>
-                    <th>Kategori</th>
-                    <th>Fiyat</th>
-                    <th>Abone</th>
-                    <th>Tarih</th>
-                    <th>İşlemler</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var kurs in Model)
-                {
+    <div class="card animate-fade-up" style="overflow:hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
                     <tr>
-                        <td><strong>@kurs.Baslik</strong></td>
-                        <td><span class="badge bg-secondary">@kurs.Kategori?.Ad</span></td>
-                        <td>
-                            @if (kurs.Ucretsiz)
-                            {
-                                <span class="badge bg-success">Ücretsiz</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning text-dark">@kurs.Fiyat jeton</span>
-                            }
-                        </td>
-                        <td><i class="bi bi-people me-1"></i>@kurs.AbonelikSayisi</td>
-                        <td>@kurs.OlusturmaTarihi.ToString("dd.MM.yyyy")</td>
-                        <td>
-                            <a asp-action="Detay" asp-route-id="@kurs.Id" class="btn btn-sm btn-outline-info">Detay</a>
-                            <a asp-controller="Ders" asp-action="Index" asp-route-kursId="@kurs.Id" class="btn btn-sm btn-outline-secondary">Dersler</a>
-                            <a asp-action="Duzenle" asp-route-id="@kurs.Id" class="btn btn-sm btn-outline-warning">Düzenle</a>
-                            <a asp-action="Sil" asp-route-id="@kurs.Id" class="btn btn-sm btn-outline-danger">Sil</a>
-                        </td>
+                        <th>Kurs</th>
+                        <th>Kategori</th>
+                        <th>Fiyat</th>
+                        <th>Abone</th>
+                        <th>Tarih</th>
+                        <th style="text-align:right;">İşlemler</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var kurs in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:0.75rem;">
+                                    <div style="width:40px;height:40px;border-radius:var(--radius-sm);background:rgba(108,99,255,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                        <i class="bi bi-play-circle-fill" style="color:var(--primary-light);font-size:1.1rem;"></i>
+                                    </div>
+                                    <strong style="color:var(--text-primary);font-size:0.9rem;">@kurs.Baslik</strong>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-secondary">@kurs.Kategori?.Ad</span></td>
+                            <td>
+                                @if (kurs.Ucretsiz)
+                                {
+                                    <span class="badge bg-success"><i class="bi bi-gift me-1"></i>Ücretsiz</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning"><i class="bi bi-coin me-1"></i>@kurs.Fiyat</span>
+                                }
+                            </td>
+                            <td>
+                                <span style="color:var(--text-secondary);font-size:0.875rem;">
+                                    <i class="bi bi-people me-1" style="color:var(--primary-light);"></i>@kurs.AbonelikSayisi
+                                </span>
+                            </td>
+                            <td>
+                                <span style="color:var(--text-muted);font-size:0.8rem;">@kurs.OlusturmaTarihi.ToString("dd.MM.yyyy")</span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1 justify-content-end flex-wrap">
+                                    <a asp-action="Detay" asp-route-id="@kurs.Id" class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-controller="Ders" asp-action="Index" asp-route-kursId="@kurs.Id" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-collection-play me-1"></i>Dersler
+                                    </a>
+                                    <a asp-action="Duzenle" asp-route-id="@kurs.Id" class="btn btn-sm btn-outline-warning">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Sil" asp-route-id="@kurs.Id" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 }

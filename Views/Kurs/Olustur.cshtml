@@ -2,59 +2,79 @@
 @{
     ViewData["Title"] = "Yeni Kurs";
 }
+
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Yeni Kurs Oluştur</h4>
+    <div class="col-lg-8 col-md-10">
+        <div class="page-header animate-fade-up">
+            <div class="page-header-left">
+                <h2><i class="bi bi-plus-circle me-2" style="color:var(--primary-light);font-size:1.4rem;"></i>Yeni Kurs Oluştur</h2>
+                <p>Kurs bilgilerini doldurun ve yayınlayın</p>
             </div>
-            <div class="card-body">
-                <form asp-action="Olustur" method="post">
+        </div>
+
+        <div class="card animate-fade-up-delay-1" style="overflow:hidden;">
+            <div class="card-body" style="padding:2rem;">
+                <form asp-action="Olustur" method="post" id="olusturForm">
                     @Html.AntiForgeryToken()
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
 
-                    <div class="mb-3">
-                        <label asp-for="Baslik" class="form-label fw-bold"></label>
-                        <input asp-for="Baslik" class="form-control" placeholder="Kurs başlığı" />
-                        <span asp-validation-for="Baslik" class="text-danger small"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Aciklama" class="form-label fw-bold"></label>
-                        <textarea asp-for="Aciklama" class="form-control" rows="4" placeholder="Kurs hakkında açıklama..."></textarea>
-                        <span asp-validation-for="Aciklama" class="text-danger small"></span>
-                    </div>
-
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label asp-for="KategoriId" class="form-label fw-bold"></label>
-                            <select asp-for="KategoriId" asp-items="Model.Kategoriler" class="form-select">
-                                <option value="">-- Kategori Seçin --</option>
-                            </select>
-                            <span asp-validation-for="KategoriId" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="Fiyat" class="form-label fw-bold"></label>
-                            <div class="input-group">
-                                <input asp-for="Fiyat" class="form-control" type="number" min="0" />
-                                <span class="input-group-text"><i class="bi bi-coin"></i> jeton</span>
-                            </div>
-                            <small class="text-muted">0 = Ücretsiz kurs</small>
-                            <span asp-validation-for="Fiyat" class="text-danger small d-block"></span>
-                        </div>
+                    <div class="mb-4">
+                        <label asp-for="Baslik" class="form-label">
+                            <i class="bi bi-pencil me-1" style="color:var(--primary-light);"></i>Kurs Başlığı
+                        </label>
+                        <input asp-for="Baslik" class="form-control" placeholder="Örn: Python ile Veri Bilimi" id="kursBaslik" />
+                        <span asp-validation-for="Baslik" class="text-danger" style="font-size:0.78rem;"></span>
                     </div>
 
                     <div class="mb-4">
-                        <label asp-for="ResimUrl" class="form-label fw-bold"></label>
-                        <input asp-for="ResimUrl" class="form-control" placeholder="https://example.com/resim.jpg" />
-                        <small class="text-muted">Boş bırakabilirsiniz.</small>
+                        <label asp-for="Aciklama" class="form-label">
+                            <i class="bi bi-text-paragraph me-1" style="color:var(--primary-light);"></i>Açıklama
+                        </label>
+                        <textarea asp-for="Aciklama" class="form-control" rows="5"
+                                  placeholder="Kursunuzun içeriği ve öğrencilerin neler öğreneceği hakkında açıklayıcı bir metin yazın..."></textarea>
+                        <span asp-validation-for="Aciklama" class="text-danger" style="font-size:0.78rem;"></span>
                     </div>
 
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check2 me-1"></i>Kurs Oluştur
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="KategoriId" class="form-label">
+                                <i class="bi bi-grid me-1" style="color:var(--primary-light);"></i>Kategori
+                            </label>
+                            <select asp-for="KategoriId" asp-items="Model.Kategoriler" class="form-select" id="kursKategori">
+                                <option value="">— Kategori Seçin —</option>
+                            </select>
+                            <span asp-validation-for="KategoriId" class="text-danger" style="font-size:0.78rem;"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Fiyat" class="form-label">
+                                <i class="bi bi-coin me-1" style="color:var(--primary-light);"></i>Fiyat
+                            </label>
+                            <div style="display:flex;gap:0.5rem;align-items:center;">
+                                <input asp-for="Fiyat" class="form-control" type="number" min="0" id="kursFiyat" />
+                                <span style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:var(--secondary);padding:0.65rem 1rem;border-radius:var(--radius-sm);white-space:nowrap;font-size:0.85rem;font-weight:600;">
+                                    <i class="bi bi-coin me-1"></i>Jeton
+                                </span>
+                            </div>
+                            <p class="form-text mt-1">0 girin = Ücretsiz kurs</p>
+                            <span asp-validation-for="Fiyat" class="text-danger" style="font-size:0.78rem;display:block;"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <label asp-for="ResimUrl" class="form-label">
+                            <i class="bi bi-image me-1" style="color:var(--primary-light);"></i>Kapak Görseli URL
+                        </label>
+                        <input asp-for="ResimUrl" class="form-control" placeholder="https://example.com/resim.jpg" id="kursResim" />
+                        <p class="form-text mt-1">Boş bırakırsanız varsayılan görsel kullanılır</p>
+                    </div>
+
+                    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;padding-top:1.5rem;border-top:1px solid var(--border);">
+                        <button type="submit" class="btn btn-primary btn-lg" id="olusturBtn">
+                            <i class="bi bi-check2-circle me-2"></i>Kurs Oluştur
                         </button>
-                        <a asp-action="Index" class="btn btn-outline-secondary">İptal</a>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-x me-1"></i>İptal
+                        </a>
                     </div>
                 </form>
             </div>

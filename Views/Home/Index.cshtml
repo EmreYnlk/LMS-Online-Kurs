@@ -3,108 +3,195 @@
     ViewData["Title"] = "Ana Sayfa";
 }
 
-<div class="bg-primary text-white rounded-3 p-5 mb-4">
+<!-- ═══ HERO ═══ -->
+<div class="hero au">
+    <div class="hero-grid"></div>
+    <i class="bi bi-mortarboard-fill hero-float-icon"></i>
+
     <div class="row align-items-center">
-        <div class="col-md-8">
-            <h1 class="display-5 fw-bold">EduHub'a Hoş Geldiniz!</h1>
-            <p class="lead">Binlerce kursa erişin, yeni beceriler kazanın.</p>
-            <form asp-action="Index" method="get" class="d-flex gap-2">
-                <input type="text" name="ara" value="@Model.AramaMetni"
-                       class="form-control" placeholder="Kurs ara..." />
-                <button type="submit" class="btn btn-warning px-4">
-                    <i class="bi bi-search"></i>
-                </button>
+        <div class="col-lg-7">
+            <div class="hero-tag">
+                <span class="dot"></span> #1 Online Öğrenme Platformu
+            </div>
+
+            <h1 class="hero-title">
+                Kariyerine yön ver,<br>
+                <span class="gradient-text">her şeyi öğren.</span>
+            </h1>
+
+            <p class="hero-sub">
+                Alanında uzman eğitmenlerden kendi temponuzda öğrenin. Her seviyeye uygun kurslarla kendinizi geliştirin.
+            </p>
+
+            <!-- Search -->
+            <form asp-action="Index" method="get">
+                <div class="hero-search">
+                    <input type="text" name="ara" value="@Model.AramaMetni"
+                           placeholder="Ne öğrenmek istiyorsunuz? Python, UI Design…"
+                           id="searchInput" autocomplete="off" />
+                    <button type="submit">
+                        <i class="bi bi-search"></i> Ara
+                    </button>
+                </div>
             </form>
-        </div>
-        <div class="col-md-4 text-center d-none d-md-block">
-            <i class="bi bi-mortarboard-fill" style="font-size:8rem; opacity:0.3"></i>
+
+            <!-- Metrics -->
+            <div class="hero-metrics">
+                <div>
+                    <div class="hero-metric-val">@Model.Kurslar.Count<span style="color:var(--indigo-light)">+</span></div>
+                    <div class="hero-metric-lbl">Kurs</div>
+                </div>
+                <div style="width:1px;background:var(--border);align-self:stretch;"></div>
+                <div>
+                    <div class="hero-metric-val">@Model.Kategoriler.Count</div>
+                    <div class="hero-metric-lbl">Kategori</div>
+                </div>
+                <div style="width:1px;background:var(--border);align-self:stretch;"></div>
+                <div>
+                    <div class="hero-metric-val">500</div>
+                    <div class="hero-metric-lbl">Başlangıç Jeton</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-3">
-        <div class="card mb-3">
-            <div class="card-header bg-primary text-white">
-                <i class="bi bi-grid me-2"></i>Kategoriler
+<!-- ═══ CONTENT ═══ -->
+<div class="row g-4">
+    <!-- ── Sidebar ── -->
+    <div class="col-lg-3 col-md-4">
+        <div class="sidebar-card mb-3 au-1">
+            <div class="sidebar-head">
+                <i class="bi bi-grid-3x3-gap"></i> Kategoriler
+                <span class="ms-auto" style="font-size:0.7rem;color:var(--fg-3);font-weight:600;">@Model.Kategoriler.Count</span>
             </div>
             <div class="list-group list-group-flush">
-                <a asp-action="Index" class="list-group-item list-group-item-action @(Model.SeciliKategoriId == null ? "active" : "")">
-                    Tümü
+                <a asp-action="Index"
+                   class="list-group-item list-group-item-action @(Model.SeciliKategoriId == null ? "active" : "")">
+                    <i class="bi bi-collection" style="font-size:0.85rem;opacity:0.7;"></i>
+                    <span>Tümü</span>
+                    <span class="ms-auto badge">@Model.Kurslar.Count</span>
                 </a>
                 @foreach (var kat in Model.Kategoriler)
                 {
                     <a asp-action="Index" asp-route-kategoriId="@kat.Id"
                        class="list-group-item list-group-item-action @(Model.SeciliKategoriId == kat.Id ? "active" : "")">
-                        @kat.Ad
+                        <i class="bi bi-tag" style="font-size:0.85rem;opacity:0.7;"></i>
+                        <span>@kat.Ad</span>
                     </a>
                 }
             </div>
         </div>
 
-        @await Component.InvokeAsync("PopulerKurslar", new { adet = 5 })
+        <div class="au-2">
+            @await Component.InvokeAsync("PopulerKurslar", new { adet = 5 })
+        </div>
     </div>
 
-    <div class="col-md-9">
+    <!-- ── Main ── -->
+    <div class="col-lg-9 col-md-8">
         @if (!string.IsNullOrEmpty(Model.AramaMetni))
         {
-            <div class="alert alert-info">
-                "<strong>@Model.AramaMetni</strong>" için @Model.Kurslar.Count sonuç bulundu.
-                <a asp-action="Index" class="ms-2">Temizle</a>
+            <div class="alert alert-info au mb-3">
+                <i class="bi bi-search"></i>
+                "<strong>@Model.AramaMetni</strong>" için <strong>@Model.Kurslar.Count</strong> sonuç
+                <a asp-action="Index" class="ms-2" style="color:inherit;text-decoration:underline;font-weight:600;">Temizle</a>
             </div>
         }
 
         @if (!Model.Kurslar.Any())
         {
-            <div class="text-center py-5">
-                <i class="bi bi-inbox text-muted" style="font-size:4rem"></i>
-                <h4 class="mt-3 text-muted">Henüz kurs bulunmuyor.</h4>
+            <div class="card au">
+                <div class="card-body text-center py-5">
+                    <div style="width:72px;height:72px;border-radius:50%;background:rgba(99,102,241,0.07);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
+                        <i class="bi bi-inbox" style="font-size:2.2rem;color:var(--indigo-light);opacity:0.4;"></i>
+                    </div>
+                    <h6 style="color:var(--fg-2);">Kurs bulunamadı</h6>
+                    <p style="color:var(--fg-3);font-size:0.82rem;margin:0;">Farklı bir kategori veya arama terimi deneyin.</p>
+                </div>
             </div>
         }
         else
         {
+            <div class="d-flex align-items-center justify-content-between mb-3 au">
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    @if (Model.SeciliKategoriId != null)
+                    {
+                        <span style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);color:var(--indigo-light);padding:3px 10px;border-radius:var(--r-full);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">
+                            <i class="bi bi-funnel me-1"></i>Filtreli
+                        </span>
+                    }
+                    else
+                    {
+                        <span style="color:var(--fg-3);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">
+                            <i class="bi bi-fire me-1" style="color:var(--amber);"></i>Tüm Kurslar
+                        </span>
+                    }
+                </div>
+                <span style="color:var(--fg-3);font-size:0.78rem;">@Model.Kurslar.Count kurs</span>
+            </div>
+
             <div class="row g-3">
                 @foreach (var kurs in Model.Kurslar)
                 {
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm hover-shadow">
+                    <div class="col-md-6 col-xl-4 au">
+                        <div class="card course-card h-100">
+                            <!-- Top accent bar -->
+                            <div class="course-stat-bar"></div>
+
                             @if (!string.IsNullOrEmpty(kurs.ResimUrl))
                             {
-                                <img src="@kurs.ResimUrl" class="card-img-top" style="height:150px;object-fit:cover" alt="@kurs.Baslik" />
+                                <div style="overflow:hidden;height:185px;">
+                                    <img src="@kurs.ResimUrl" style="width:100%;height:100%;object-fit:cover;transition:transform 0.5s var(--ease);" alt="@kurs.Baslik" />
+                                </div>
                             }
                             else
                             {
-                                <div class="bg-gradient bg-primary d-flex align-items-center justify-content-center" style="height:150px">
-                                    <i class="bi bi-play-circle text-white" style="font-size:3rem;opacity:0.7"></i>
+                                <div class="course-img-placeholder">
+                                    <i class="bi bi-play-circle-fill"></i>
                                 </div>
                             }
-                            <div class="card-body d-flex flex-column">
-                                <span class="badge bg-secondary mb-1 align-self-start">@kurs.Kategori?.Ad</span>
-                                <h6 class="card-title">@kurs.Baslik</h6>
-                                <p class="card-text text-muted small flex-grow-1">
-                                    @(kurs.Aciklama.Length > 80 ? kurs.Aciklama[..80] + "..." : kurs.Aciklama)
-                                </p>
-                                <div class="d-flex justify-content-between align-items-center mt-2">
-                                    <small class="text-muted">
-                                        <i class="bi bi-people me-1"></i>@kurs.AbonelikSayisi abone
-                                    </small>
+
+                            <div class="card-body d-flex flex-column" style="padding:1.1rem;">
+                                <!-- Top badges -->
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="badge bg-secondary">@kurs.Kategori?.Ad</span>
                                     @if (kurs.Ucretsiz)
                                     {
-                                        <span class="badge bg-success">Ücretsiz</span>
+                                        <span class="badge bg-success"><i class="bi bi-gift me-1"></i>Ücretsiz</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-warning text-dark">
-                                            <i class="bi bi-coin me-1"></i>@kurs.Fiyat
-                                        </span>
+                                        <span class="badge bg-warning"><i class="bi bi-coin me-1"></i>@kurs.Fiyat</span>
                                     }
                                 </div>
-                            </div>
-                            <div class="card-footer bg-transparent">
-                                <a asp-controller="Kurs" asp-action="Detay" asp-route-id="@kurs.Id"
-                                   class="btn btn-outline-primary btn-sm w-100">
-                                    <i class="bi bi-eye me-1"></i>Kursu İncele
-                                </a>
+
+                                <!-- Title -->
+                                <h6 class="card-title" style="font-size:0.925rem;line-height:1.38;margin-bottom:0.35rem;">@kurs.Baslik</h6>
+
+                                <!-- Instructor -->
+                                <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.6rem;">
+                                    <div style="width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),#7C3AED);display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:800;color:white;flex-shrink:0;">
+                                        @(kurs.Egitmen?.TamAd?.Substring(0,1).ToUpper() ?? "E")
+                                    </div>
+                                    <span style="font-size:0.78rem;color:var(--fg-3);">@kurs.Egitmen?.TamAd</span>
+                                </div>
+
+                                <!-- Description -->
+                                <p class="card-text flex-grow-1" style="font-size:0.8rem;line-height:1.5;margin-bottom:0.85rem;">
+                                    @(kurs.Aciklama.Length > 80 ? kurs.Aciklama[..80] + "…" : kurs.Aciklama)
+                                </p>
+
+                                <!-- Footer -->
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.75rem;border-top:1px solid var(--border);">
+                                    <span style="color:var(--fg-3);font-size:0.76rem;display:flex;align-items:center;gap:0.3rem;">
+                                        <i class="bi bi-people"></i>@kurs.AbonelikSayisi
+                                    </span>
+                                    <a asp-controller="Kurs" asp-action="Detay" asp-route-id="@kurs.Id"
+                                       class="btn btn-sm btn-primary">
+                                        İncele <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>

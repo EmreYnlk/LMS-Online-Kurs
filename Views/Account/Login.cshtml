@@ -1,57 +1,74 @@
 @model LMSPlatform.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Giriş Yap";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-5">
-        <div class="card shadow">
-            <div class="card-body p-4">
-                <h3 class="card-title text-center mb-4">
-                    <i class="bi bi-box-arrow-in-right me-2 text-primary"></i>Giriş Yap
-                </h3>
+<div class="auth-scene">
+    <div class="auth-panel">
+        <div class="auth-card au">
+            <!-- Top -->
+            <div class="auth-card-top">
+                <div class="auth-icon-ring">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.3rem;letter-spacing:-0.03em;">Tekrar hoş geldiniz</h2>
+                <p style="font-size:0.875rem;color:var(--fg-3);margin:0;">Hesabınıza giriş yapın</p>
+            </div>
 
-                <form asp-action="Login" method="post">
-                    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+            <!-- Body -->
+            <div class="auth-card-body">
+                <form asp-action="Login" method="post" id="loginForm">
                     @Html.AntiForgeryToken()
-
-                    <div asp-validation-summary="All" class="alert alert-danger" style="display:none"></div>
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
 
                     <div class="mb-3">
-                        <label asp-for="Email" class="form-label"></label>
-                        <input asp-for="Email" class="form-control" placeholder="ornek@mail.com" />
-                        <span asp-validation-for="Email" class="text-danger small"></span>
+                        <label asp-for="Email" class="form-label">
+                            <i class="bi bi-envelope"></i> E-posta
+                        </label>
+                        <input asp-for="Email" class="form-control" type="email"
+                               placeholder="ornek@email.com" id="loginEmail" />
+                        <span asp-validation-for="Email" class="text-danger" style="font-size:0.76rem;"></span>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Sifre" class="form-label"></label>
-                        <input asp-for="Sifre" class="form-control" placeholder="••••••" />
-                        <span asp-validation-for="Sifre" class="text-danger small"></span>
+                    <div class="mb-4" style="position:relative;">
+                        <label asp-for="Sifre" class="form-label">
+                            <i class="bi bi-lock"></i> Şifre
+                        </label>
+                        <div style="position:relative;">
+                            <input asp-for="Sifre" class="form-control" type="password"
+                                   placeholder="••••••••" id="loginPw" style="padding-right:2.75rem;" />
+                            <button type="button" class="pw-toggle" onclick="togglePw('loginPw',this)">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Sifre" class="text-danger" style="font-size:0.76rem;"></span>
                     </div>
 
-                    <div class="mb-3 form-check">
-                        <input asp-for="BeniHatirla" class="form-check-input" />
-                        <label asp-for="BeniHatirla" class="form-check-label"></label>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg" id="loginBtn" style="border-radius:var(--r-md) !important;">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Giriş Yap
+                    </button>
                 </form>
 
-                <hr />
-                <p class="text-center mb-0">
-                    Hesabın yok mu?
-                    <a asp-action="Register">Kayıt Ol</a>
-                </p>
-            </div>
-        </div>
+                <div class="auth-sep"><span>veya</span></div>
 
-        <div class="card mt-3 border-warning">
-            <div class="card-body py-2">
-                <small class="text-muted">
-                    <i class="bi bi-info-circle me-1"></i>
-                    Test hesabı: <strong>admin@lms.com</strong> / <strong>Admin123!</strong>
-                </small>
+                <!-- Demo hint -->
+                <div style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.15);border-radius:var(--r-sm);padding:0.85rem 1rem;margin-bottom:1.25rem;">
+                    <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--indigo-light);margin-bottom:0.35rem;">
+                        <i class="bi bi-info-circle me-1"></i>Demo Hesap
+                    </div>
+                    <div style="font-size:0.8rem;color:var(--fg-3);line-height:1.6;">
+                        Admin: <code style="color:var(--fg-2);background:rgba(255,255,255,0.05);padding:1px 5px;border-radius:3px;">admin@eduhub.com</code><br>
+                        Şifre: <code style="color:var(--fg-2);background:rgba(255,255,255,0.05);padding:1px 5px;border-radius:3px;">Admin123!</code>
+                    </div>
+                </div>
+
+                <p style="text-align:center;font-size:0.86rem;color:var(--fg-3);margin:0;">
+                    Hesabınız yok mu?
+                    <a asp-controller="Account" asp-action="Register" style="color:var(--indigo-light);font-weight:600;">
+                        Ücretsiz Kayıt Ol <i class="bi bi-arrow-right"></i>
+                    </a>
+                </p>
             </div>
         </div>
     </div>
@@ -59,4 +76,17 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function togglePw(id, btn) {
+            const inp = document.getElementById(id);
+            const isText = inp.type === 'text';
+            inp.type = isText ? 'password' : 'text';
+            btn.querySelector('i').className = isText ? 'bi bi-eye' : 'bi bi-eye-slash';
+        }
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Giriş yapılıyor…';
+            this.disabled = true;
+            this.closest('form').submit();
+        });
+    </script>
 }

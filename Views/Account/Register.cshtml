@@ -3,87 +3,109 @@
     ViewData["Title"] = "Kayıt Ol";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-body p-4">
-                <h3 class="card-title text-center mb-4">
-                    <i class="bi bi-person-plus me-2 text-primary"></i>Kayıt Ol
-                </h3>
+<div class="auth-scene">
+    <div class="auth-panel" style="max-width:500px;">
+        <div class="auth-card au">
+            <!-- Top -->
+            <div class="auth-card-top">
+                <div class="auth-icon-ring" style="background:linear-gradient(135deg,var(--indigo),#7C3AED);">
+                    <i class="bi bi-rocket-takeoff-fill"></i>
+                </div>
+                <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.3rem;letter-spacing:-0.03em;">Hesap Oluştur</h2>
+                <p style="font-size:0.875rem;color:var(--fg-3);margin:0;">500 jeton ile başlayın, hemen öğrenin</p>
+            </div>
 
-                <form asp-action="Register" method="post">
+            <!-- Body -->
+            <div class="auth-card-body">
+                <form asp-action="Register" method="post" id="registerForm">
                     @Html.AntiForgeryToken()
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Kayıt Türü</label>
-                        <div class="row g-2">
+                    <!-- Registration type -->
+                    <div class="mb-4">
+                        <label class="form-label"><i class="bi bi-people"></i> Kayıt Türü</label>
+                        <div class="row g-3">
                             <div class="col-6">
-                                <div class="card border-2 @(Model?.KayitTuru == "Ogrenci" ? "border-primary" : "") text-center p-3 kayit-kart"
-                                     style="cursor:pointer" data-deger="Ogrenci">
-                                    <i class="bi bi-mortarboard fs-2 text-primary"></i>
-                                    <div class="fw-bold mt-1">Öğrenci</div>
-                                    <small class="text-muted">Kurslara katıl</small>
+                                <div class="reg-card kayit-kart" data-deger="Ogrenci" id="cardOgrenci">
+                                    <div class="reg-card-icon" style="color:var(--indigo-light);">
+                                        <i class="bi bi-mortarboard-fill"></i>
+                                    </div>
+                                    <div class="reg-card-title">Öğrenci</div>
+                                    <div class="reg-card-desc">Kurslara katıl ve öğren</div>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="card border-2 @(Model?.KayitTuru == "Egitmen" ? "border-success" : "") text-center p-3 kayit-kart"
-                                     style="cursor:pointer" data-deger="Egitmen">
-                                    <i class="bi bi-easel2 fs-2 text-success"></i>
-                                    <div class="fw-bold mt-1">Eğitmen</div>
-                                    <small class="text-muted">Kurs oluştur</small>
+                                <div class="reg-card kayit-kart" data-deger="Egitmen" id="cardEgitmen">
+                                    <div class="reg-card-icon" style="color:#34D399;">
+                                        <i class="bi bi-easel2-fill"></i>
+                                    </div>
+                                    <div class="reg-card-title">Eğitmen</div>
+                                    <div class="reg-card-desc">Kurs oluştur ve yönet</div>
                                 </div>
                             </div>
                         </div>
                         <input asp-for="KayitTuru" type="hidden" id="kayitTuruInput" />
-                        <span asp-validation-for="KayitTuru" class="text-danger small"></span>
+                        <span asp-validation-for="KayitTuru" class="text-danger" style="font-size:0.76rem;"></span>
                     </div>
 
-                    <div id="egitmenBilgi" class="alert alert-warning mb-3" style="display:none">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        Eğitmen başvurusu Admin onayına tabidir. Onaylanana kadar öğrenci olarak giriş yapabilirsiniz. Başlangıç olarak 500 jeton verilecektir.
+                    <!-- Instructor notice -->
+                    <div id="egitmenBilgi" class="alert alert-warning" style="display:none;">
+                        <i class="bi bi-hourglass-split me-2"></i>
+                        Eğitmen başvurusu <strong>Admin onayına</strong> tabidir. Onaylanana kadar öğrenci olarak giriş yapabilirsiniz.
                     </div>
 
+                    <!-- Name fields -->
                     <div class="row g-3 mb-3">
                         <div class="col-6">
-                            <label asp-for="Ad" class="form-label"></label>
-                            <input asp-for="Ad" class="form-control" placeholder="Adınız" />
-                            <span asp-validation-for="Ad" class="text-danger small"></span>
+                            <label asp-for="Ad" class="form-label"><i class="bi bi-person"></i> Ad</label>
+                            <input asp-for="Ad" class="form-control" placeholder="Adınız" autocomplete="given-name" />
+                            <span asp-validation-for="Ad" class="text-danger" style="font-size:0.76rem;"></span>
                         </div>
                         <div class="col-6">
-                            <label asp-for="Soyad" class="form-label"></label>
-                            <input asp-for="Soyad" class="form-control" placeholder="Soyadınız" />
-                            <span asp-validation-for="Soyad" class="text-danger small"></span>
+                            <label asp-for="Soyad" class="form-label"><i class="bi bi-person"></i> Soyad</label>
+                            <input asp-for="Soyad" class="form-control" placeholder="Soyadınız" autocomplete="family-name" />
+                            <span asp-validation-for="Soyad" class="text-danger" style="font-size:0.76rem;"></span>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Email" class="form-label"></label>
-                        <input asp-for="Email" class="form-control" placeholder="ornek@mail.com" />
-                        <span asp-validation-for="Email" class="text-danger small"></span>
+                        <label asp-for="Email" class="form-label"><i class="bi bi-envelope"></i> E-posta</label>
+                        <input asp-for="Email" class="form-control" type="email" placeholder="ornek@email.com" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger" style="font-size:0.76rem;"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Sifre" class="form-label"></label>
-                        <input asp-for="Sifre" class="form-control" placeholder="En az 6 karakter, 1 rakam içermeli" />
-                        <span asp-validation-for="Sifre" class="text-danger small"></span>
-                        <small class="text-muted">En az 6 karakter, en az 1 rakam (0-9) içermelidir.</small>
+                        <label asp-for="Sifre" class="form-label"><i class="bi bi-lock"></i> Şifre</label>
+                        <div style="position:relative;">
+                            <input asp-for="Sifre" class="form-control" type="password"
+                                   placeholder="Min. 6 karakter, 1 rakam" id="regPw" autocomplete="new-password"
+                                   style="padding-right:2.75rem;" />
+                            <button type="button" class="pw-toggle" onclick="togglePw('regPw',this)">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Sifre" class="text-danger" style="font-size:0.76rem;"></span>
                     </div>
 
                     <div class="mb-4">
-                        <label asp-for="SifreTekrar" class="form-label"></label>
-                        <input asp-for="SifreTekrar" class="form-control" placeholder="Şifreyi tekrar girin" />
-                        <span asp-validation-for="SifreTekrar" class="text-danger small"></span>
+                        <label asp-for="SifreTekrar" class="form-label"><i class="bi bi-shield-lock"></i> Şifre Tekrar</label>
+                        <input asp-for="SifreTekrar" class="form-control" type="password"
+                               placeholder="Şifreyi tekrar girin" autocomplete="new-password" />
+                        <span asp-validation-for="SifreTekrar" class="text-danger" style="font-size:0.76rem;"></span>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 mb-2">
-                        <i class="bi bi-coin me-2"></i>Kayıt Ol (500 Jeton ile başla!)
+                    <button type="submit" class="btn btn-primary w-100 btn-lg" id="registerBtn"
+                            style="border-radius:var(--r-md) !important;">
+                        <i class="bi bi-coin me-2"></i>Kayıt Ol — 500 Jeton Kazan!
                     </button>
                 </form>
 
-                <hr />
-                <p class="text-center mb-0">
-                    Hesabın var mı? <a asp-action="Login">Giriş Yap</a>
+                <div class="auth-sep"><span>zaten hesabın var mı?</span></div>
+
+                <p style="text-align:center;font-size:0.86rem;color:var(--fg-3);margin:0;">
+                    <a asp-action="Login" style="color:var(--indigo-light);font-weight:600;">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Giriş Yap
+                    </a>
                 </p>
             </div>
         </div>
@@ -93,23 +115,25 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
+        function togglePw(id, btn) {
+            const inp = document.getElementById(id);
+            const isText = inp.type === 'text';
+            inp.type = isText ? 'password' : 'text';
+            btn.querySelector('i').className = isText ? 'bi bi-eye' : 'bi bi-eye-slash';
+        }
+
         document.querySelectorAll('.kayit-kart').forEach(kart => {
             kart.addEventListener('click', function () {
-                document.querySelectorAll('.kayit-kart').forEach(k => k.classList.remove('border-primary', 'border-success'));
-                const deger = this.dataset.deger;
-                document.getElementById('kayitTuruInput').value = deger;
-                if (deger === 'Egitmen') {
-                    this.classList.add('border-success');
-                    document.getElementById('egitmenBilgi').style.display = 'block';
-                } else {
-                    this.classList.add('border-primary');
-                    document.getElementById('egitmenBilgi').style.display = 'none';
-                }
+                document.querySelectorAll('.kayit-kart').forEach(k => k.classList.remove('sel-student', 'sel-teacher'));
+                const val = this.dataset.deger;
+                document.getElementById('kayitTuruInput').value = val;
+                this.classList.add(val === 'Egitmen' ? 'sel-teacher' : 'sel-student');
+                document.getElementById('egitmenBilgi').style.display = val === 'Egitmen' ? 'block' : 'none';
             });
         });
 
-        // Sayfa yüklendiğinde varsayılan seçili göster
-        const baslangic = document.getElementById('kayitTuruInput').value || 'Ogrenci';
-        document.querySelector(`[data-deger="${baslangic}"]`)?.click();
+        // Default select
+        const initial = document.getElementById('kayitTuruInput').value || 'Ogrenci';
+        document.querySelector(`[data-deger="${initial}"]`)?.click();
     </script>
 }

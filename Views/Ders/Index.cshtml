@@ -3,56 +3,85 @@
     ViewData["Title"] = "Dersler";
     var kurs = ViewBag.Kurs as LMSPlatform.Models.Kurs;
 }
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2><i class="bi bi-play-circle me-2"></i>Dersler</h2>
-        <p class="text-muted mb-0">@kurs?.Baslik</p>
+
+<div class="page-header animate-fade-up">
+    <div class="page-header-left">
+        <h2><i class="bi bi-play-circle me-2" style="color:var(--primary-light);font-size:1.5rem;"></i>Dersler</h2>
+        <p style="color:var(--text-muted);">
+            <i class="bi bi-collection-play me-1"></i>@kurs?.Baslik
+        </p>
     </div>
-    <div>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
         <a asp-action="Olustur" asp-route-kursId="@kurs?.Id" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i>Yeni Ders
+            <i class="bi bi-plus-circle me-2"></i>Yeni Ders
         </a>
-        <a asp-controller="Kurs" asp-action="Index" class="btn btn-outline-secondary ms-2">Geri</a>
+        <a asp-controller="Kurs" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Geri
+        </a>
     </div>
 </div>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">
-        Bu kursa henüz ders eklenmemiş.
-        <a asp-action="Olustur" asp-route-kursId="@kurs?.Id" class="alert-link">İlk dersi ekleyin.</a>
+    <div class="card animate-fade-up" style="border-style:dashed !important;border-color:rgba(108,99,255,0.2) !important;">
+        <div class="card-body text-center py-5">
+            <div style="width:72px;height:72px;border-radius:50%;background:rgba(108,99,255,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
+                <i class="bi bi-play-circle" style="font-size:2rem;color:var(--primary-light);opacity:0.5;"></i>
+            </div>
+            <h5 style="color:var(--text-secondary);">Bu kursa henüz ders eklenmemiş</h5>
+            <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.5rem;">İlk dersi oluşturun ve içerik ekleyin.</p>
+            <a asp-action="Olustur" asp-route-kursId="@kurs?.Id" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>İlk Dersi Ekle
+            </a>
+        </div>
     </div>
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Sıra</th>
-                    <th>Başlık</th>
-                    <th>Açıklama</th>
-                    <th>İşlemler</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var ders in Model.OrderBy(d => d.Sira))
-                {
+    <div class="card animate-fade-up" style="overflow:hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
                     <tr>
-                        <td><span class="badge bg-primary">@ders.Sira</span></td>
-                        <td><strong>@ders.Baslik</strong></td>
-                        <td class="text-muted">@(ders.Aciklama?.Length > 60 ? ders.Aciklama[..60] + "..." : ders.Aciklama ?? "-")</td>
-                        <td>
-                            <a asp-action="Duzenle" asp-route-id="@ders.Id" class="btn btn-sm btn-outline-warning">Düzenle</a>
-                            <form asp-action="Sil" asp-route-id="@ders.Id" method="post" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-sm btn-outline-danger"
-                                        onclick="return confirm('Bu dersi silmek istediğinizden emin misiniz?')">Sil</button>
-                            </form>
-                        </td>
+                        <th>Sıra</th>
+                        <th>Başlık</th>
+                        <th>Açıklama</th>
+                        <th style="text-align:right;">İşlemler</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var ders in Model.OrderBy(d => d.Sira))
+                    {
+                        <tr>
+                            <td>
+                                <span class="badge bg-primary" style="width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;">
+                                    @ders.Sira
+                                </span>
+                            </td>
+                            <td>
+                                <strong style="color:var(--text-primary);font-size:0.9rem;">@ders.Baslik</strong>
+                            </td>
+                            <td style="color:var(--text-muted);font-size:0.82rem;max-width:300px;">
+                                @(ders.Aciklama?.Length > 70 ? ders.Aciklama[..70] + "…" : ders.Aciklama ?? "—")
+                            </td>
+                            <td style="text-align:right;">
+                                <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
+                                    <a asp-action="Duzenle" asp-route-id="@ders.Id" class="btn btn-sm btn-outline-warning">
+                                        <i class="bi bi-pencil me-1"></i>Düzenle
+                                    </a>
+                                    <form asp-action="Sil" asp-route-id="@ders.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Bu dersi silmek istediğinizden emin misiniz?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 }

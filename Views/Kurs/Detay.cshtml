@@ -4,160 +4,264 @@
     var kurs = Model.Kurs;
 }
 
-<nav aria-label="breadcrumb">
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="au">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index"><i class="bi bi-house me-1"></i>Ana Sayfa</a></li>
         <li class="breadcrumb-item active">@kurs.Baslik</li>
     </ol>
 </nav>
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card shadow mb-4">
+<div class="row g-4">
+    <!-- ── Left: Course Info ── -->
+    <div class="col-lg-8">
+
+        <!-- Hero Image -->
+        <div class="card au mb-4" style="overflow:hidden;border-radius:var(--r-xl) !important;">
             @if (!string.IsNullOrEmpty(kurs.ResimUrl))
             {
-                <img src="@kurs.ResimUrl" class="card-img-top" style="max-height:300px;object-fit:cover" alt="@kurs.Baslik" />
+                <img src="@kurs.ResimUrl" style="width:100%;height:300px;object-fit:cover;" alt="@kurs.Baslik" />
             }
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="badge bg-secondary">@kurs.Kategori?.Ad</span>
+            else
+            {
+                <div style="height:260px;background:linear-gradient(135deg,var(--bg-card),var(--bg-elevated));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(99,102,241,0.10),transparent);"></div>
+                    <i class="bi bi-play-circle-fill" style="font-size:5rem;color:var(--indigo-light);opacity:0.20;"></i>
+                </div>
+            }
+            <div class="card-body" style="padding:1.75rem 2rem;">
+                <!-- Badges row -->
+                <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+                    <span class="badge bg-secondary"><i class="bi bi-tag me-1"></i>@kurs.Kategori?.Ad</span>
                     @if (kurs.Ucretsiz)
                     {
-                        <span class="badge bg-success fs-6">Ücretsiz</span>
+                        <span class="badge bg-success"><i class="bi bi-gift me-1"></i>Ücretsiz</span>
                     }
                     else
                     {
-                        <span class="badge bg-warning text-dark fs-6">
-                            <i class="bi bi-coin me-1"></i>@kurs.Fiyat Jeton
-                        </span>
+                        <span class="badge bg-warning"><i class="bi bi-coin me-1"></i>@kurs.Fiyat Jeton</span>
                     }
                 </div>
-                <h2>@kurs.Baslik</h2>
-                <p class="text-muted">
-                    <i class="bi bi-person me-1"></i>@kurs.Egitmen?.TamAd &nbsp;|&nbsp;
-                    <i class="bi bi-calendar me-1"></i>@kurs.OlusturmaTarihi.ToString("dd.MM.yyyy") &nbsp;|&nbsp;
-                    <i class="bi bi-people me-1"></i>@kurs.AbonelikSayisi abone
-                </p>
+
+                <h1 style="font-size:1.65rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:0.75rem;line-height:1.2;">@kurs.Baslik</h1>
+
+                <!-- Meta row -->
+                <div style="display:flex;flex-wrap:wrap;gap:1.25rem;margin-bottom:1.25rem;">
+                    <span style="font-size:0.82rem;color:var(--fg-3);display:flex;align-items:center;gap:0.35rem;">
+                        <div style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),#7C3AED);display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:800;color:white;">
+                            @(kurs.Egitmen?.TamAd?.Substring(0,1).ToUpper() ?? "E")
+                        </div>
+                        @kurs.Egitmen?.TamAd
+                    </span>
+                    <span style="font-size:0.82rem;color:var(--fg-3);display:flex;align-items:center;gap:0.35rem;">
+                        <i class="bi bi-calendar3" style="color:var(--indigo-light);"></i>@kurs.OlusturmaTarihi.ToString("dd.MM.yyyy")
+                    </span>
+                    <span style="font-size:0.82rem;color:var(--fg-3);display:flex;align-items:center;gap:0.35rem;">
+                        <i class="bi bi-people" style="color:var(--indigo-light);"></i>@kurs.AbonelikSayisi abone
+                    </span>
+                    <span style="font-size:0.82rem;color:var(--fg-3);display:flex;align-items:center;gap:0.35rem;">
+                        <i class="bi bi-collection-play" style="color:var(--indigo-light);"></i>@kurs.Dersler.Count ders
+                    </span>
+                </div>
+
                 <hr />
-                <p>@kurs.Aciklama</p>
+                <p style="color:var(--fg-2);line-height:1.8;margin:0;font-size:0.925rem;">@kurs.Aciklama</p>
             </div>
         </div>
 
-        <div class="card shadow">
-            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-play-circle me-2"></i>Dersler (@kurs.Dersler.Count)</h5>
+        <!-- Lessons -->
+        <div class="card au-1" style="overflow:hidden;border-radius:var(--r-xl) !important;">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <div style="display:flex;align-items:center;gap:0.6rem;">
+                    <div style="width:32px;height:32px;border-radius:var(--r-xs);background:rgba(99,102,241,0.10);display:flex;align-items:center;justify-content:center;">
+                        <i class="bi bi-play-circle" style="color:var(--indigo-light);font-size:0.95rem;"></i>
+                    </div>
+                    <span style="font-weight:700;font-size:0.9rem;">Dersler</span>
+                    <span style="color:var(--fg-3);font-weight:400;font-size:0.82rem;">(@kurs.Dersler.Count)</span>
+                </div>
                 @if (Model.AbonemVar && kurs.Dersler.Any())
                 {
                     @await Component.InvokeAsync("Ilerleme", new { kursId = kurs.Id })
                 }
             </div>
-            <div class="list-group list-group-flush">
-                @if (!kurs.Dersler.Any())
-                {
-                    <div class="list-group-item text-muted">Henüz ders eklenmemiş.</div>
-                }
+
+            @if (!kurs.Dersler.Any())
+            {
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-collection" style="font-size:2.5rem;color:var(--fg-3);opacity:0.35;"></i>
+                    <p style="color:var(--fg-3);margin-top:0.75rem;font-size:0.875rem;">Henüz ders eklenmemiş.</p>
+                </div>
+            }
+            else
+            {
                 @foreach (var ders in kurs.Dersler.OrderBy(d => d.Sira))
                 {
                     var ilerleme = Model.Ilerlemeler.FirstOrDefault(i => i.DersId == ders.Id);
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            @if (ilerleme?.Tamamlandi == true)
+                    var completed = ilerleme?.Tamamlandi == true;
+                    <div class="lesson-row @(completed ? "done" : "")">
+                        <div style="display:flex;align-items:center;gap:0.75rem;flex:1;min-width:0;">
+                            <span class="lesson-num">
+                                @if (completed)
+                                {
+                                    <i class="bi bi-check2" style="font-size:0.75rem;color:#34D399;"></i>
+                                }
+                                else
+                                {
+                                    @ders.Sira
+                                }
+                            </span>
+                            <span style="font-size:0.875rem;font-weight:500;@(completed ? "opacity:0.55;text-decoration:line-through;" : "")color:var(--fg);">
+                                @ders.Baslik
+                            </span>
+                        </div>
+                        <div style="flex-shrink:0;">
+                            @if (Model.AbonemVar || User.IsInRole("Admin") || User.IsInRole("Egitmen"))
                             {
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <a asp-controller="Ogrenci" asp-action="DersIzle" asp-route-dersId="@ders.Id"
+                                   class="btn btn-sm @(completed ? "btn-outline-secondary" : "btn-outline-primary")">
+                                    <i class="bi bi-@(completed ? "arrow-repeat" : "play-fill") me-1"></i>@(completed ? "Tekrar" : "İzle")
+                                </a>
                             }
                             else
                             {
-                                <i class="bi bi-play-circle text-muted me-2"></i>
+                                <i class="bi bi-lock-fill" style="color:var(--fg-3);font-size:0.85rem;"></i>
                             }
-                            <span>@ders.Sira. @ders.Baslik</span>
                         </div>
-                        @if (Model.AbonemVar || User.IsInRole("Admin") || User.IsInRole("Egitmen"))
-                        {
-                            <a asp-controller="Ogrenci" asp-action="DersIzle" asp-route-dersId="@ders.Id"
-                               class="btn btn-sm btn-outline-primary">İzle</a>
-                        }
-                        else
-                        {
-                            <i class="bi bi-lock text-muted"></i>
-                        }
                     </div>
                 }
-            </div>
+            }
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="card shadow sticky-top" style="top:20px">
-            <div class="card-body text-center">
+    <!-- ── Right: Purchase Card ── -->
+    <div class="col-lg-4">
+        <div class="buy-card au-2">
+            <div class="buy-card-top">
                 @if (!User.Identity!.IsAuthenticated)
                 {
-                    <p class="mb-3">Bu kursa katılmak için giriş yapın.</p>
-                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary w-100">Giriş Yap</a>
+                    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--fg-3);margin-bottom:0.5rem;">Kursa Katılmak İçin</div>
+                    <div style="font-size:2.4rem;font-weight:900;letter-spacing:-0.04em;color:var(--fg);">Giriş Yap</div>
                 }
                 else if (Model.AbonemVar)
                 {
-                    <div class="text-success mb-3">
-                        <i class="bi bi-check-circle-fill fs-1"></i>
-                        <h5 class="mt-2">Bu kursa kayıtlısınız!</h5>
+                    <div style="width:52px;height:52px;border-radius:var(--r-md);background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;box-shadow:0 4px 16px rgba(16,185,129,0.2);">
+                        <i class="bi bi-check-circle-fill" style="font-size:1.55rem;color:#34D399;"></i>
                     </div>
+                    <div style="font-size:1rem;font-weight:700;color:#34D399;letter-spacing:-0.01em;">Kayıtlısınız ✓</div>
+                }
+                else if (User.IsInRole("Admin"))
+                {
+                    <div style="width:52px;height:52px;border-radius:var(--r-md);background:rgba(99,102,241,0.10);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
+                        <i class="bi bi-shield-check" style="font-size:1.55rem;color:var(--indigo-light);"></i>
+                    </div>
+                    <div style="font-size:1rem;font-weight:700;color:var(--indigo-light);">Admin Görünümü</div>
+                }
+                else if (User.IsInRole("Egitmen") && kurs.EgitmenId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                {
+                    <div style="width:52px;height:52px;border-radius:var(--r-md);background:rgba(56,189,248,0.10);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
+                        <i class="bi bi-easel-fill" style="font-size:1.55rem;color:var(--sky);"></i>
+                    </div>
+                    <div style="font-size:1rem;font-weight:700;color:var(--sky);">Sizin Kursunuz</div>
+                }
+                else
+                {
+                    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--fg-3);margin-bottom:0.4rem;">Kurs Ücreti</div>
+                    @if (kurs.Ucretsiz)
+                    {
+                        <div style="font-size:2.6rem;font-weight:900;letter-spacing:-0.04em;color:#34D399;line-height:1;">Ücretsiz</div>
+                    }
+                    else
+                    {
+                        <div style="font-size:2.6rem;font-weight:900;letter-spacing:-0.04em;color:var(--fg);line-height:1;">@kurs.Fiyat</div>
+                        <div style="color:var(--fg-3);font-size:0.82rem;margin-top:0.25rem;"><i class="bi bi-coin me-1"></i>Jeton</div>
+                        <div style="margin-top:0.5rem;font-size:0.78rem;color:var(--fg-3);">
+                            Bakiyeniz: <strong style="color:#FCD34D;">@ViewBag.JetonMiktari jeton</strong>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="card-body" style="padding:1.5rem;">
+                @if (!User.Identity!.IsAuthenticated)
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary w-100 btn-lg" style="border-radius:var(--r-md) !important;">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Giriş Yap
+                    </a>
+                    <p style="text-align:center;margin-top:0.85rem;font-size:0.8rem;color:var(--fg-3);">
+                        Hesabın yok mu?
+                        <a asp-controller="Account" asp-action="Register" style="color:var(--indigo-light);font-weight:600;">Ücretsiz Kayıt Ol</a>
+                    </p>
+                }
+                else if (Model.AbonemVar)
+                {
                     @if (kurs.Dersler.Any())
                     {
-                        <a asp-controller="Ogrenci" asp-action="DersIzle" asp-route-dersId="@kurs.Dersler.OrderBy(d => d.Sira).First().Id"
-                           class="btn btn-success w-100">
-                            <i class="bi bi-play-fill me-1"></i>Derse Devam Et
+                        <a asp-controller="Ogrenci" asp-action="DersIzle"
+                           asp-route-dersId="@kurs.Dersler.OrderBy(d => d.Sira).First().Id"
+                           class="btn btn-success w-100 btn-lg" style="border-radius:var(--r-md) !important;">
+                            <i class="bi bi-play-fill me-2"></i>Derse Devam Et
                         </a>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info" style="margin:0;font-size:0.82rem;">
+                            <i class="bi bi-hourglass me-2"></i>Dersler yakında eklenecek
+                        </div>
                     }
                 }
                 else if (User.IsInRole("Admin"))
                 {
-                    <div class="text-secondary mb-3">
-                        <i class="bi bi-shield-check fs-1"></i>
-                        <h5 class="mt-2">Admin Görünümü</h5>
-                    </div>
-                    <a asp-controller="Admin" asp-action="TumKurslar" class="btn btn-outline-secondary w-100">Tüm Kurslara Dön</a>
+                    <a asp-controller="Admin" asp-action="TumKurslar" class="btn btn-outline-secondary w-100" style="border-radius:var(--r-md) !important;">
+                        <i class="bi bi-arrow-left me-2"></i>Tüm Kurslara Dön
+                    </a>
                 }
                 else if (User.IsInRole("Egitmen") && kurs.EgitmenId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
                 {
-                    <div class="text-info mb-3">
-                        <i class="bi bi-easel fs-1"></i>
-                        <h5 class="mt-2">Bu sizin kursunuz</h5>
-                    </div>
-                    <a asp-action="Duzenle" asp-route-id="@kurs.Id" class="btn btn-warning w-100 mb-2">Düzenle</a>
-                    <a asp-controller="Ders" asp-action="Index" asp-route-kursId="@kurs.Id" class="btn btn-outline-secondary w-100">Dersleri Yönet</a>
+                    <a asp-action="Duzenle" asp-route-id="@kurs.Id" class="btn btn-warning w-100 mb-2" style="border-radius:var(--r-md) !important;">
+                        <i class="bi bi-pencil-square me-2"></i>Kursu Düzenle
+                    </a>
+                    <a asp-controller="Ders" asp-action="Index" asp-route-kursId="@kurs.Id" class="btn btn-outline-secondary w-100" style="border-radius:var(--r-md) !important;">
+                        <i class="bi bi-collection-play me-2"></i>Dersleri Yönet
+                    </a>
                 }
                 else
                 {
-                    <div class="mb-3">
-                        <h4>
-                            @if (kurs.Ucretsiz)
-                            {
-                                <span class="text-success">Ücretsiz</span>
-                            }
-                            else
-                            {
-                                <span><i class="bi bi-coin me-1"></i>@kurs.Fiyat Jeton</span>
-                            }
-                        </h4>
-                        @if (!kurs.Ucretsiz)
-                        {
-                            <small class="text-muted">Mevcut jetonunuz: @ViewBag.JetonMiktari</small>
-                        }
-                    </div>
                     <form asp-controller="Ogrenci" asp-action="AboneOl" method="post">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="kursId" value="@kurs.Id" />
-                        <button type="submit" class="btn btn-primary w-100">
+                        <button type="submit" class="btn btn-primary w-100 btn-lg" style="border-radius:var(--r-md) !important;">
                             @if (kurs.Ucretsiz)
                             {
-                                <text><i class="bi bi-plus-circle me-1"></i>Ücretsiz Kaydol</text>
+                                <text><i class="bi bi-plus-circle me-2"></i>Ücretsiz Kaydol</text>
                             }
                             else
                             {
-                                <text><i class="bi bi-coin me-1"></i>@kurs.Fiyat Jeton ile Satın Al</text>
+                                <text><i class="bi bi-coin me-2"></i>@kurs.Fiyat Jeton ile Satın Al</text>
                             }
                         </button>
                     </form>
                 }
+
+                <!-- Details -->
+                <div style="margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:0.65rem;">
+                    @{
+                        var rows = new[] {
+                            new { icon="bi-collection-play", label="Ders Sayısı", val=kurs.Dersler.Count.ToString() },
+                            new { icon="bi-people",           label="Abone",       val=kurs.AbonelikSayisi.ToString() },
+                            new { icon="bi-calendar3",        label="Eklenme",     val=kurs.OlusturmaTarihi.ToString("dd.MM.yyyy") },
+                            new { icon="bi-tag",              label="Kategori",    val=(kurs.Kategori?.Ad ?? "—") },
+                        };
+                    }
+                    @foreach (var row in rows)
+                    {
+                        <div style="display:flex;align-items:center;justify-content:space-between;font-size:0.82rem;">
+                            <span style="color:var(--fg-3);display:flex;align-items:center;gap:0.4rem;">
+                                <i class="bi @row.icon" style="color:var(--indigo-light);"></i>@row.label
+                            </span>
+                            <strong style="color:var(--fg);">@row.val</strong>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>

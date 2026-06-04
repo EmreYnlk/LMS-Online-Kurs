@@ -1,67 +1,121 @@
-@model LMSPlatform.ViewModels.JetonSatinAlViewModel
+﻿@model LMSPlatform.ViewModels.JetonSatinAlViewModel
 @{
-    ViewData["Title"] = "Jeton Satın Al";
+    ViewData["Title"] = "Jeton Satin Al";
     var paketler = ViewBag.Paketler as List<LMSPlatform.ViewModels.JetonPaketi> ?? new();
     var seciliPaket = paketler.FirstOrDefault(p => p.Id == Model.PaketId);
 }
 
-<h2 class="mb-4"><i class="bi bi-coin me-2 text-warning"></i>Jeton Satın Al</h2>
+<div class="page-hdr au">
+    <div>
+        <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--amber);margin-bottom:0.5rem;">
+            <i class="bi bi-coin me-1"></i> Jeton Merkezi
+        </div>
+        <h2 style="font-size:1.75rem;font-weight:900;letter-spacing:-0.04em;margin:0;">Jeton Satin Al</h2>
+        <p style="color:var(--fg-3);font-size:0.88rem;margin:0.35rem 0 0;">Kurslara hizlica katilmak icin bakiyenizi guvenli odeme simülasyonu ile yukleyin.</p>
+    </div>
+    <a asp-controller="Ogrenci" asp-action="Dashboard" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Kurslarima Don
+    </a>
+</div>
 
-<div class="row g-4 mb-5">
+<div class="card au-1 mb-4" style="overflow:hidden;border-radius:var(--r-xl) !important;">
+    <div style="padding:1.75rem 2rem;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(99,102,241,0.06));border-bottom:1px solid var(--border);">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(245,158,11,0.10);border:1px solid rgba(245,158,11,0.22);color:#FCD34D;padding:5px 12px;border-radius:var(--r-full);font-size:0.78rem;font-weight:800;margin-bottom:0.9rem;">
+                    <i class="bi bi-lightning-charge-fill"></i> Aninda Bakiye
+                </div>
+                <h1 style="font-size:2rem;font-weight:900;letter-spacing:-0.045em;margin:0 0 0.55rem;">Ogrenmeye ara verme, jetonunu yukle.</h1>
+                <p style="max-width:620px;margin:0;color:var(--fg-2);font-size:0.95rem;line-height:1.75;">Secilen paket odeme sonrasi hesabina eklenir. Bu ekran demo odeme akisini temsil eder; kart bilgileri gercek bir odeme altyapisina gonderilmez.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div style="display:inline-flex;align-items:center;justify-content:center;width:96px;height:96px;border-radius:var(--r-xl);background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.22);box-shadow:0 12px 34px rgba(245,158,11,0.14);">
+                    <i class="bi bi-wallet2" style="font-size:2.8rem;color:#FCD34D;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
     @foreach (var paket in paketler)
     {
         var birimFiyat = paket.Fiyat / paket.Jeton;
-        <div class="col-md-4">
-            <div class="card h-100 shadow @(paket.PopulerMi ? "border-primary border-2" : "") @(Model.PaketId == paket.Id ? "border-success border-3" : "")"
-                 style="cursor:pointer" onclick="paketSec(@paket.Id, '@paket.Ad', @paket.Jeton, '@paket.Fiyat.ToString("F2")')">
-                @if (paket.Etiket != null)
+        var secili = Model.PaketId == paket.Id;
+        var fiyatMetni = paket.Fiyat.ToString("F2");
+        <div class="col-md-4 au">
+            <button type="button"
+                    class="card h-100 w-100 text-start token-package-card @(paket.PopulerMi ? "popular" : "") @(secili ? "selected" : "")"
+                    onclick="paketSec(event, @paket.Id, '@paket.Ad', @paket.Jeton, '@fiyatMetni')">
+                @if (!string.IsNullOrEmpty(paket.Etiket))
                 {
-                    <div class="card-header @(paket.PopulerMi ? "bg-primary text-white" : "bg-success text-white") text-center fw-bold">
-                        @paket.Etiket
-                    </div>
+                    <div class="token-ribbon @(paket.PopulerMi ? "primary" : "success")">@paket.Etiket</div>
                 }
-                <div class="card-body text-center">
-                    <h4 class="card-title">@paket.Ad</h4>
-                    <div class="display-5 fw-bold text-warning my-3">
-                        <i class="bi bi-coin me-1"></i>@paket.Jeton
+                <div class="card-body" style="padding:1.5rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.15rem;">
+                        <div>
+                            <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--fg-3);">Paket</div>
+                            <h4 style="font-size:1.1rem;font-weight:850;margin:0.15rem 0 0;">@paket.Ad</h4>
+                        </div>
+                        <span class="token-check"><i class="bi @(secili ? "bi-check-circle-fill" : "bi-circle")"></i></span>
                     </div>
-                    <div class="fs-4 fw-bold text-dark">@paket.Fiyat.ToString("F2") ₺</div>
-                    <small class="text-muted">(@birimFiyat.ToString("F3") ₺ / jeton)</small>
+
+                    <div style="display:flex;align-items:flex-end;gap:0.55rem;margin-bottom:0.9rem;">
+                        <span style="font-size:2.5rem;font-weight:950;letter-spacing:-0.05em;line-height:0.95;color:#FCD34D;">@paket.Jeton</span>
+                        <span style="color:var(--fg-3);font-weight:700;margin-bottom:0.25rem;">jeton</span>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding-top:1rem;border-top:1px solid var(--border);">
+                        <strong style="font-size:1.25rem;color:var(--fg);">@paket.Fiyat.ToString("F2") TL</strong>
+                        <small>@birimFiyat.ToString("F3") TL / jeton</small>
+                    </div>
                 </div>
-                <div class="card-footer text-center">
-                    @if (Model.PaketId == paket.Id)
-                    {
-                        <span class="badge bg-success fs-6"><i class="bi bi-check-circle me-1"></i>Seçildi</span>
-                    }
-                    else
-                    {
-                        <span class="text-primary">Seç →</span>
-                    }
-                </div>
-            </div>
+            </button>
         </div>
     }
 </div>
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-dark text-white">
-                <h5 class="mb-0"><i class="bi bi-credit-card me-2"></i>Ödeme Bilgileri</h5>
+<div class="row g-4 align-items-start">
+    <div class="col-lg-5">
+        <div class="buy-card au-2" style="position:sticky;top:82px;">
+            <div class="buy-card-top">
+                @if (seciliPaket != null)
+                {
+                    <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--fg-3);margin-bottom:0.45rem;">Secilen Paket</div>
+                    <div style="font-size:1.25rem;font-weight:850;color:var(--fg);">@seciliPaket.Ad</div>
+                    <div style="font-size:2.6rem;font-weight:950;letter-spacing:-0.05em;color:#FCD34D;line-height:1;margin-top:0.5rem;">@seciliPaket.Jeton</div>
+                    <div style="color:var(--fg-3);font-size:0.85rem;margin-top:0.2rem;">jeton / @seciliPaket.Fiyat.ToString("F2") TL</div>
+                }
+                else
+                {
+                    <div style="width:54px;height:54px;border-radius:var(--r-md);background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 0.8rem;">
+                        <i class="bi bi-hand-index-thumb" style="font-size:1.55rem;color:#FCD34D;"></i>
+                    </div>
+                    <div style="font-size:1rem;font-weight:800;color:var(--fg);">Paket Secin</div>
+                    <p style="font-size:0.82rem;color:var(--fg-3);margin:0.45rem 0 0;">Odeme formunu aktiflestirmek icin once bir jeton paketi secin.</p>
+                }
             </div>
-            <div class="card-body">
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card au-3" style="border-radius:var(--r-xl) !important;">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-credit-card-2-front" style="color:var(--indigo-light);"></i>
+                <span>Odeme Bilgileri</span>
+            </div>
+            <div class="card-body" style="padding:1.5rem;">
                 @if (seciliPaket != null)
                 {
                     <div class="alert alert-success mb-3">
-                        <strong>Seçilen Paket:</strong> @seciliPaket.Ad —
-                        <span class="text-warning fw-bold"><i class="bi bi-coin me-1"></i>@seciliPaket.Jeton jeton</span>
-                        için <strong>@seciliPaket.Fiyat.ToString("F2") ₺</strong>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>@seciliPaket.Ad</strong> paketi secildi: <strong>@seciliPaket.Jeton jeton</strong> icin <strong>@seciliPaket.Fiyat.ToString("F2") TL</strong>.</span>
                     </div>
                 }
                 else
                 {
                     <div class="alert alert-warning mb-3">
-                        <i class="bi bi-exclamation-triangle me-2"></i>Lütfen yukarıdan bir paket seçin.
+                        <i class="bi bi-exclamation-triangle-fill"></i>Lutfen yukaridan bir paket secin.
                     </div>
                 }
 
@@ -71,46 +125,42 @@
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
 
                     <div class="mb-3">
-                        <label asp-for="KartSahibi" class="form-label fw-bold"></label>
-                        <input asp-for="KartSahibi" class="form-control" placeholder="AD SOYAD" style="text-transform:uppercase" />
+                        <label asp-for="KartSahibi" class="form-label"></label>
+                        <input asp-for="KartSahibi" class="form-control form-control-lg" placeholder="AD SOYAD" style="text-transform:uppercase" />
                         <span asp-validation-for="KartSahibi" class="text-danger small"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="KartNumarasi" class="form-label fw-bold"></label>
-                        <div class="input-group">
+                        <label asp-for="KartNumarasi" class="form-label"></label>
+                        <div class="input-group input-group-lg">
                             <span class="input-group-text"><i class="bi bi-credit-card"></i></span>
-                            <input asp-for="KartNumarasi" class="form-control" placeholder="0000 0000 0000 0000"
-                                   maxlength="19" id="kartNo" />
+                            <input asp-for="KartNumarasi" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" id="kartNo" inputmode="numeric" />
                         </div>
                         <span asp-validation-for="KartNumarasi" class="text-danger small"></span>
                     </div>
 
                     <div class="row g-3 mb-4">
-                        <div class="col-7">
-                            <label asp-for="SonKullanma" class="form-label fw-bold"></label>
-                            <input asp-for="SonKullanma" class="form-control" placeholder="AA/YY" maxlength="5" id="sonKullanma" />
+                        <div class="col-sm-7">
+                            <label asp-for="SonKullanma" class="form-label"></label>
+                            <input asp-for="SonKullanma" class="form-control form-control-lg" placeholder="AA/YY" maxlength="5" id="sonKullanma" inputmode="numeric" />
                             <span asp-validation-for="SonKullanma" class="text-danger small"></span>
                         </div>
-                        <div class="col-5">
-                            <label asp-for="Cvv" class="form-label fw-bold"></label>
-                            <input asp-for="Cvv" class="form-control" placeholder="•••" maxlength="3" type="password" />
+                        <div class="col-sm-5">
+                            <label asp-for="Cvv" class="form-label"></label>
+                            <input asp-for="Cvv" class="form-control form-control-lg" placeholder="***" maxlength="3" type="password" inputmode="numeric" />
                             <span asp-validation-for="Cvv" class="text-danger small"></span>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-success w-100 btn-lg" id="odemeBtn"
-                            @(seciliPaket == null ? "disabled" : "")>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg" id="odemeBtn" @(seciliPaket == null ? "disabled" : "")>
                         <i class="bi bi-lock-fill me-2"></i>
-                        Güvenli Öde @(seciliPaket != null ? $"— {seciliPaket.Fiyat.ToString("F2")} ₺" : "")
+                        Guvenli Ode @(seciliPaket != null ? $"- {seciliPaket.Fiyat.ToString("F2")} TL" : "")
                     </button>
                 </form>
 
-                <div class="text-center mt-3">
-                    <small class="text-muted">
-                        <i class="bi bi-shield-check me-1 text-success"></i>
-                        256-bit SSL ile korumalı simüle ödeme sistemi
-                    </small>
+                <div style="display:flex;align-items:center;justify-content:center;gap:0.45rem;margin-top:1rem;color:var(--fg-3);font-size:0.78rem;">
+                    <i class="bi bi-shield-check" style="color:#34D399;"></i>
+                    Demo odeme ekrani; kart bilgileri saklanmaz.
                 </div>
             </div>
         </div>
@@ -120,34 +170,49 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        function paketSec(id, ad, jeton, fiyat) {
+        function paketSec(evt, id, ad, jeton, fiyat) {
             document.getElementById('paketIdInput').value = id;
 
-            document.querySelectorAll('.card[onclick]').forEach(k => {
-                k.classList.remove('border-success', 'border-3');
+            document.querySelectorAll('.token-package-card').forEach(card => {
+                card.classList.remove('selected');
+                const icon = card.querySelector('.token-check i');
+                if (icon) icon.className = 'bi bi-circle';
             });
-            event.currentTarget.classList.add('border-success', 'border-3');
+
+            evt.currentTarget.classList.add('selected');
+            const selectedIcon = evt.currentTarget.querySelector('.token-check i');
+            if (selectedIcon) selectedIcon.className = 'bi bi-check-circle-fill';
 
             const btn = document.getElementById('odemeBtn');
             btn.disabled = false;
-            btn.innerHTML = `<i class="bi bi-lock-fill me-2"></i>Güvenli Öde — ${fiyat} ₺`;
+            btn.innerHTML = `<i class="bi bi-lock-fill me-2"></i>Guvenli Ode - ${fiyat} TL`;
 
             document.getElementById('odemeFormu').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        // Kart numarası otomatik boşluk ekle
-        document.getElementById('kartNo').addEventListener('input', function () {
-            let val = this.value.replace(/\D/g, '').substring(0, 16);
-            this.value = val.replace(/(.{4})/g, '$1 ').trim();
-            // Validation için sadece rakamları hidden input'a yaz
-            document.querySelector('[name="KartNumarasi"]').value = val;
-        });
+        const kartNo = document.getElementById('kartNo');
+        if (kartNo) {
+            kartNo.addEventListener('input', function () {
+                let val = this.value.replace(/\D/g, '').substring(0, 16);
+                this.value = val.replace(/(.{4})/g, '$1 ').trim();
+                this.setAttribute('value', val);
+            });
+        }
 
-        // Son kullanma AA/YY formatı
-        document.getElementById('sonKullanma').addEventListener('input', function () {
-            let val = this.value.replace(/\D/g, '');
-            if (val.length >= 2) val = val.substring(0, 2) + '/' + val.substring(2, 4);
-            this.value = val;
-        });
+        const form = document.getElementById('odemeFormu');
+        if (form && kartNo) {
+            form.addEventListener('submit', function () {
+                kartNo.value = kartNo.value.replace(/\D/g, '').substring(0, 16);
+            });
+        }
+
+        const sonKullanma = document.getElementById('sonKullanma');
+        if (sonKullanma) {
+            sonKullanma.addEventListener('input', function () {
+                let val = this.value.replace(/\D/g, '').substring(0, 4);
+                if (val.length >= 2) val = val.substring(0, 2) + '/' + val.substring(2, 4);
+                this.value = val;
+            });
+        }
     </script>
 }
