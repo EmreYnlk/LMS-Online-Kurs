@@ -1,0 +1,134 @@
+@model IEnumerable<LMSPlatform.Models.JetonIslem>
+@{
+    ViewData["Title"] = "Ödeme Geçmişi";
+    var kullanici = ViewBag.Kullanici as LMSPlatform.Models.ApplicationUser;
+    var toplamHarcama = Model.Where(j => j.Tur == LMSPlatform.Models.JetonIslemTuru.KursOdeme).Sum(j => Math.Abs(j.Miktar));
+    var toplamYukleme = Model.Where(j => j.Tur == LMSPlatform.Models.JetonIslemTuru.Satin).Sum(j => j.Miktar);
+}
+
+<div class="page-hdr au">
+    <div>
+        <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--indigo-light);margin-bottom:0.5rem;">
+            <i class="bi bi-receipt me-1"></i> Geçmiş
+        </div>
+        <h2 style="font-size:1.75rem;font-weight:900;letter-spacing:-0.04em;margin:0;">Ödeme Geçmişi</h2>
+        <p style="color:var(--fg-3);font-size:0.88rem;margin:0.35rem 0 0;">Kurs satın almalarınız ve jeton yüklemeleriniz</p>
+    </div>
+    <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+        <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:var(--amber);padding:0.4rem 1.1rem;border-radius:var(--r-full);font-size:0.9rem;font-weight:700;">
+            <i class="bi bi-coin"></i>@kullanici?.JetonMiktari Jeton
+        </div>
+        <a asp-controller="Ogrenci" asp-action="Dashboard" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Geri
+        </a>
+    </div>
+</div>
+
+<!-- Özet kartları -->
+<div class="row g-3 mb-4 au-1">
+    <div class="col-md-6">
+        <div class="card" style="border-radius:var(--r-xl) !important;">
+            <div class="card-body" style="padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;">
+                <div style="width:48px;height:48px;border-radius:var(--r-md);background:rgba(99,102,241,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-coin" style="font-size:1.4rem;color:var(--indigo-light);"></i>
+                </div>
+                <div>
+                    <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--fg-3);">Toplam Yüklenen Jeton</div>
+                    <div style="font-size:1.6rem;font-weight:900;color:var(--emerald);">+@toplamYukleme <i class="bi bi-coin" style="font-size:1rem;"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card" style="border-radius:var(--r-xl) !important;">
+            <div class="card-body" style="padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;">
+                <div style="width:48px;height:48px;border-radius:var(--r-md);background:rgba(244,63,94,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-bag" style="font-size:1.4rem;color:var(--rose);"></i>
+                </div>
+                <div>
+                    <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--fg-3);">Toplam Harcanan Jeton</div>
+                    <div style="font-size:1.6rem;font-weight:900;color:var(--rose);">-@toplamHarcama <i class="bi bi-coin" style="font-size:1rem;"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card au">
+        <div class="card-body text-center py-5">
+            <div style="width:72px;height:72px;border-radius:50%;background:rgba(99,102,241,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+                <i class="bi bi-receipt" style="font-size:2rem;color:var(--indigo-light);opacity:0.4;"></i>
+            </div>
+            <h5 style="color:var(--fg-2);">Henüz ödeme işlemi yok</h5>
+            <p style="color:var(--fg-3);font-size:0.875rem;">İlk kurs satın alımınızda veya jeton yüklemenizdezde burada görünecek.</p>
+            @if (!User.IsInRole("Admin"))
+            {
+                <a asp-controller="Ogrenci" asp-action="JetonSatinAl" class="btn btn-primary">
+                    <i class="bi bi-coin me-2"></i>Jeton Satın Al
+                </a>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="card au-2" style="overflow:hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th>İşlem</th>
+                        <th>Detay</th>
+                        <th style="text-align:right;">Jeton</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var islem in Model)
+                    {
+                        <tr>
+                            <td style="color:var(--fg-3);font-size:0.83rem;white-space:nowrap;">
+                                @islem.Tarih.ToString("dd.MM.yyyy HH:mm")
+                            </td>
+                            <td>
+                                @if (islem.Tur == LMSPlatform.Models.JetonIslemTuru.Satin)
+                                {
+                                    <span class="badge bg-success"><i class="bi bi-coin me-1"></i>Jeton Yükleme</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary"><i class="bi bi-mortarboard me-1"></i>Kurs Satın Alma</span>
+                                }
+                            </td>
+                            <td style="font-size:0.875rem;">
+                                @islem.Aciklama
+                                @if (islem.TLTutar.HasValue)
+                                {
+                                    <br />
+                                    <small style="color:var(--fg-3);">@islem.TLTutar.Value.ToString("F2") TL ödendi</small>
+                                }
+                                @if (islem.Kurs != null)
+                                {
+                                    <br />
+                                    <small style="color:var(--fg-3);">
+                                        <a asp-controller="Kurs" asp-action="Detay" asp-route-id="@islem.KursId" style="color:var(--indigo-light);">
+                                            <i class="bi bi-box-arrow-up-right" style="font-size:0.7rem;"></i> @islem.Kurs.Baslik
+                                        </a>
+                                    </small>
+                                }
+                            </td>
+                            <td style="text-align:right;">
+                                <span style="font-weight:800;font-size:1rem;color:@(islem.Miktar >= 0 ? "var(--emerald)" : "var(--rose)");">
+                                    @(islem.Miktar >= 0 ? "+" : "")@islem.Miktar
+                                    <i class="bi bi-coin" style="font-size:0.8rem;margin-left:2px;"></i>
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

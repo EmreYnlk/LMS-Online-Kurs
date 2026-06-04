@@ -21,7 +21,7 @@ namespace LMSPlatform.ViewModels
         public string KartSahibi { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Kart numarası zorunludur.")]
-        [RegularExpression(@"^\d{16}$", ErrorMessage = "Kart numarası 16 haneli olmalıdır.")]
+        [RegularExpression(@"^[\d\s]{16,19}$", ErrorMessage = "Kart numarası 16 haneli olmalıdır.")]
         [Display(Name = "Kart Numarası")]
         public string KartNumarasi { get; set; } = string.Empty;
 

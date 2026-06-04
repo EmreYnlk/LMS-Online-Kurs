@@ -1,0 +1,99 @@
+@model IEnumerable<LMSPlatform.Models.JetonIslem>
+@{
+    ViewData["Title"] = "Jeton Geçmişi";
+    var kullanici = ViewBag.Kullanici as LMSPlatform.Models.ApplicationUser;
+    var toplam = Model.Sum(j => j.Miktar);
+}
+
+<div class="page-hdr au">
+    <div>
+        <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--amber);margin-bottom:0.5rem;">
+            <i class="bi bi-clock-history me-1"></i> Geçmiş
+        </div>
+        <h2 style="font-size:1.75rem;font-weight:900;letter-spacing:-0.04em;margin:0;">Jeton Geçmişi</h2>
+        <p style="color:var(--fg-3);font-size:0.88rem;margin:0.35rem 0 0;">Tüm jeton hareketlerinizi görüntüleyin</p>
+    </div>
+    <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+        <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:var(--amber);padding:0.4rem 1.1rem;border-radius:var(--r-full);font-size:0.9rem;font-weight:700;">
+            <i class="bi bi-coin"></i>@kullanici?.JetonMiktari Jeton
+        </div>
+        <a asp-controller="Ogrenci" asp-action="Dashboard" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Geri
+        </a>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card au">
+        <div class="card-body text-center py-5">
+            <div style="width:72px;height:72px;border-radius:50%;background:rgba(245,158,11,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+                <i class="bi bi-clock-history" style="font-size:2rem;color:var(--amber);opacity:0.4;"></i>
+            </div>
+            <h5 style="color:var(--fg-2);">Henüz jeton hareketi yok</h5>
+            <p style="color:var(--fg-3);font-size:0.875rem;">İlk jeton satın alımınızda veya kurs kaydınızda burada görünecek.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card au" style="overflow:hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Tür</th>
+                        <th>Açıklama</th>
+                        <th style="text-align:right;">Miktar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var islem in Model)
+                    {
+                        <tr>
+                            <td style="color:var(--fg-3);font-size:0.83rem;white-space:nowrap;">
+                                @islem.Tarih.ToString("dd.MM.yyyy HH:mm")
+                            </td>
+                            <td>
+                                @if (islem.Tur == LMSPlatform.Models.JetonIslemTuru.Satin)
+                                {
+                                    <span class="badge bg-success"><i class="bi bi-coin me-1"></i>Satın Alma</span>
+                                }
+                                else if (islem.Tur == LMSPlatform.Models.JetonIslemTuru.KursGeliri)
+                                {
+                                    <span class="badge bg-primary"><i class="bi bi-mortarboard me-1"></i>Kurs Geliri</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger"><i class="bi bi-bag me-1"></i>Kurs Satın Alma</span>
+                                }
+                            </td>
+                            <td style="font-size:0.875rem;">
+                                @islem.Aciklama
+                                @if (islem.TLTutar.HasValue)
+                                {
+                                    <span style="color:var(--fg-3);font-size:0.78rem;"> — @islem.TLTutar.Value.ToString("F2") TL</span>
+                                }
+                            </td>
+                            <td style="text-align:right;">
+                                <span style="font-weight:800;font-size:1rem;color:@(islem.Miktar >= 0 ? "var(--emerald)" : "var(--rose)");">
+                                    @(islem.Miktar >= 0 ? "+" : "")@islem.Miktar
+                                    <i class="bi bi-coin" style="font-size:0.8rem;margin-left:2px;"></i>
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr style="background:rgba(245,158,11,0.04);border-top:2px solid var(--border);">
+                        <td colspan="3" style="font-weight:700;padding:1rem 1.25rem;color:var(--fg-2);">Net Toplam</td>
+                        <td style="text-align:right;font-weight:900;font-size:1.1rem;color:@(toplam >= 0 ? "var(--emerald)" : "var(--rose)");">
+                            @(toplam >= 0 ? "+" : "")@toplam <i class="bi bi-coin" style="font-size:0.85rem;"></i>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+}

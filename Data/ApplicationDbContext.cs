@@ -16,6 +16,7 @@ namespace LMSPlatform.Data
         public DbSet<Ders> Dersler { get; set; }
         public DbSet<KursAbonelik> KursAbonelikler { get; set; }
         public DbSet<DersIlerleme> DersIlerlemeleri { get; set; }
+        public DbSet<JetonIslem> JetonIslemleri { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -46,6 +47,18 @@ namespace LMSPlatform.Data
                 .WithMany(u => u.DersIlerlemeleri)
                 .HasForeignKey(i => i.OgrenciId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<JetonIslem>()
+                .HasOne(j => j.Kullanici)
+                .WithMany()
+                .HasForeignKey(j => j.KullaniciId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<JetonIslem>()
+                .HasOne(j => j.Kurs)
+                .WithMany()
+                .HasForeignKey(j => j.KursId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

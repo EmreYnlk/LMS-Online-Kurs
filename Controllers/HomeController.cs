@@ -28,7 +28,12 @@ namespace LMSPlatform.Controllers
                 query = query.Where(k => k.KategoriId == kategoriId.Value);
 
             if (!string.IsNullOrEmpty(ara))
-                query = query.Where(k => k.Baslik.Contains(ara) || k.Aciklama.Contains(ara));
+            {
+                var araLower = ara.ToLower(System.Globalization.CultureInfo.GetCultureInfo("tr-TR"));
+                query = query.Where(k =>
+                    k.Baslik.ToLower().Contains(araLower) ||
+                    k.Aciklama.ToLower().Contains(araLower));
+            }
 
             var model = new AnaSayfaViewModel
             {

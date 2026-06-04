@@ -46,21 +46,24 @@
 
                     @if (!User.IsInRole("Admin") && !User.IsInRole("Egitmen"))
                     {
-                        <form asp-controller="Ogrenci" asp-action="IlerlemeGuncelle" method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="dersId" value="@Model.Id" />
-                            <input type="hidden" name="tamamlandi" value="@(!tamamlandi)" />
-                            <button type="submit" class="btn @(tamamlandi ? "btn-success" : "btn-outline-secondary")" style="white-space:nowrap;">
-                                @if (tamamlandi)
-                                {
-                                    <text><i class="bi bi-check-circle-fill me-2"></i>Tamamlandı</text>
-                                }
-                                else
-                                {
-                                    <text><i class="bi bi-circle me-2"></i>Tamamlandı İşaretle</text>
-                                }
-                            </button>
-                        </form>
+                        <button type="button"
+                                id="tamamlandiBtn"
+                                class="btn @(tamamlandi ? "btn-success" : "btn-outline-secondary")"
+                                style="white-space:nowrap;"
+                                data-ders-id="@Model.Id"
+                                data-tamamlandi="@tamamlandi.ToString().ToLower()"
+                                onclick="ilerlemeToggle(this)">
+                            @if (tamamlandi)
+                            {
+                                <i class="bi bi-check-circle-fill me-2" id="tamamlandiIcon"></i>
+                                <span id="tamamlandiMetin">Tamamlandı</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-circle me-2" id="tamamlandiIcon"></i>
+                                <span id="tamamlandiMetin">Tamamlandı İşaretle</span>
+                            }
+                        </button>
                     }
                 </div>
             </div>
@@ -118,3 +121,61 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        async function ilerlemeToggle(btn) {
+            const dersId = btn.dataset.dersId;
+            const mevcutDurum = btn.dataset.tamamlandi === 'true';
+            const yeniDurum = !mevcutDurum;
+
+            btn.disabled = true;
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                       || document.cookie.match(/\.AspNetCore\.Antiforgery[^=]+=([^;]+)/)?.[1] || '';
+
+            // AntiForgery token'i meta veya hidden inputtan al
+            const formToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || token;
+
+            try {
+                const response = await fetch('@Url.Action("IlerlemeGuncelle", "Ogrenci")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'RequestVerificationToken': formToken
+                    },
+                    body: new URLSearchParams({
+                        dersId: dersId,
+                        tamamlandi: yeniDurum.toString(),
+                        __RequestVerificationToken: formToken
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    btn.dataset.tamamlandi = data.tamamlandi.toString();
+
+                    const icon = document.getElementById('tamamlandiIcon');
+                    const metin = document.getElementById('tamamlandiMetin');
+
+                    if (data.tamamlandi) {
+                        btn.classList.remove('btn-outline-secondary');
+                        btn.classList.add('btn-success');
+                        if (icon) { icon.className = 'bi bi-check-circle-fill me-2'; }
+                        if (metin) metin.textContent = 'Tamamlandı';
+                    } else {
+                        btn.classList.remove('btn-success');
+                        btn.classList.add('btn-outline-secondary');
+                        if (icon) { icon.className = 'bi bi-circle me-2'; }
+                        if (metin) metin.textContent = 'Tamamlandı İşaretle';
+                    }
+                }
+            } catch (e) {
+                console.error('İlerleme güncellenemedi:', e);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+}

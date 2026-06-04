@@ -23,12 +23,14 @@
                     <th>Roller</th>
                     <th>Jeton</th>
                     <th>Eğitmen Durumu</th>
-                    <th style="text-align:right;">İşlem</th>
+                    <th style="text-align:right;">İşlemler</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
+                    var isAdmin = item.Roller.Contains("Admin");
+                    var isEgitmen = item.Roller.Contains("Egitmen");
                     <tr>
                         <td>
                             <div style="display:flex;align-items:center;gap:0.75rem;">
@@ -68,14 +70,59 @@
                             }
                         </td>
                         <td style="text-align:right;">
-                            <a asp-action="JetonEkle" asp-route-userId="@item.Kullanici.Id"
-                               class="btn btn-sm btn-outline-warning">
-                                <i class="bi bi-coin me-1"></i>Jeton Ekle
-                            </a>
+                            <div style="display:flex;gap:0.4rem;justify-content:flex-end;flex-wrap:wrap;">
+                                <!-- Jeton Ekle -->
+                                <a asp-action="JetonEkle" asp-route-userId="@item.Kullanici.Id"
+                                   class="btn btn-sm btn-outline-warning" title="Jeton Ekle">
+                                    <i class="bi bi-coin"></i>
+                                </a>
+
+                                @if (!isAdmin)
+                                {
+                                    <!-- Eğitmen rol ekle/kaldır -->
+                                    @if (isEgitmen)
+                                    {
+                                        <form asp-action="EgitmenRolKaldir" asp-route-userId="@item.Kullanici.Id" method="post" style="display:inline;"
+                                              onsubmit="return confirm('@item.Kullanici.TamAd kullanıcısının eğitmen yetkisi kaldırılsın mı?')">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Eğitmen Yetkisini Kaldır">
+                                                <i class="bi bi-person-dash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="EgitmenRolEkle" asp-route-userId="@item.Kullanici.Id" method="post" style="display:inline;"
+                                              onsubmit="return confirm('@item.Kullanici.TamAd kullanıcısına eğitmen yetkisi verilsin mi?')">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Eğitmen Yetkisi Ver">
+                                                <i class="bi bi-person-plus"></i>
+                                            </button>
+                                        </form>
+                                    }
+
+                                    <!-- Kullanıcı sil -->
+                                    <form asp-action="KullaniciSil" asp-route-userId="@item.Kullanici.Id" method="post" style="display:inline;"
+                                          onsubmit="return confirm('@item.Kullanici.TamAd kullanıcısı kalıcı olarak silinsin mi? Bu işlem geri alınamaz!')">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Kullanıcıyı Sil">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+</div>
+
+<div class="mt-3" style="font-size:0.78rem;color:var(--fg-3);">
+    <i class="bi bi-info-circle me-1"></i>
+    <i class="bi bi-coin" style="color:var(--amber);"></i> Jeton Ekle &nbsp;|&nbsp;
+    <i class="bi bi-person-plus" style="color:var(--emerald);"></i> Eğitmen Yetkisi Ver &nbsp;|&nbsp;
+    <i class="bi bi-person-dash" style="color:var(--fg-2);"></i> Eğitmen Yetkisini Kaldır &nbsp;|&nbsp;
+    <i class="bi bi-trash" style="color:var(--rose);"></i> Kullanıcıyı Sil
 </div>

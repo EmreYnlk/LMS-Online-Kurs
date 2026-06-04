@@ -28,6 +28,8 @@ namespace LMSPlatform.Controllers
                     .ThenInclude(k => k!.Dersler)
                 .Include(a => a.Kurs)
                     .ThenInclude(k => k!.Kategori)
+                .Include(a => a.Kurs)
+                    .ThenInclude(k => k!.Egitmen)
                 .Where(a => a.OgrenciId == user!.Id)
                 .ToListAsync();
 
@@ -74,13 +76,50 @@ namespace LMSPlatform.Controllers
                     TempData["Hata"] = $"Yetersiz jeton. Bu kurs {kurs.Fiyat} jeton gerektiriyor, mevcut jetonunuz: {user.JetonMiktari}.";
                     return RedirectToAction("Detay", "Kurs", new { id = kursId });
                 }
-                // Jeton düşme ve eğitmene %50 aktarım aynı transaction'da kaydedilir
+
+                // Jeton düşme
                 var dbUser = await _context.Users.FindAsync(user.Id);
                 dbUser!.JetonMiktari -= kurs.Fiyat;
 
+                // Öğrenci harcama kaydı
+                _context.JetonIslemleri.Add(new JetonIslem
+                {
+                    KullaniciId = user.Id,
+                    Tur = JetonIslemTuru.KursOdeme,
+                    Miktar = -kurs.Fiyat,
+                    KursId = kursId,
+                    Aciklama = $"Kurs satın alındı: {kurs.Baslik}"
+                });
+
+                // Eğitmene %50 aktarım
                 var egitmen = await _context.Users.FindAsync(kurs.EgitmenId);
                 if (egitmen != null)
+                {
                     egitmen.JetonMiktari += kurs.Fiyat / 2;
+
+                    // Eğitmenin bu kursdan gelen toplam gelirini bul veya güncelle
+                    var mevcutGelir = await _context.JetonIslemleri
+                        .FirstOrDefaultAsync(j => j.KullaniciId == kurs.EgitmenId
+                                                && j.KursId == kursId
+                                                && j.Tur == JetonIslemTuru.KursGeliri);
+
+                    if (mevcutGelir == null)
+                    {
+                        _context.JetonIslemleri.Add(new JetonIslem
+                        {
+                            KullaniciId = kurs.EgitmenId,
+                            Tur = JetonIslemTuru.KursGeliri,
+                            Miktar = kurs.Fiyat / 2,
+                            KursId = kursId,
+                            Aciklama = $"Kurs geliri: {kurs.Baslik}"
+                        });
+                    }
+                    else
+                    {
+                        mevcutGelir.Miktar += kurs.Fiyat / 2;
+                        mevcutGelir.Tarih = DateTime.Now;
+                    }
+                }
             }
 
             _context.KursAbonelikler.Add(new KursAbonelik
@@ -129,6 +168,9 @@ namespace LMSPlatform.Controllers
             return View(ders);
         }
 
+        /// <summary>
+        /// AJAX endpoint — sayfa yenilemesi olmadan ilerlemeyi günceller.
+        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> IlerlemeGuncelle(int dersId, bool tamamlandi)
@@ -155,9 +197,18 @@ namespace LMSPlatform.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            // AJAX isteği ise JSON dön
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = true, tamamlandi = ilerleme.Tamamlandi });
+            }
+
             return RedirectToAction(nameof(DersIzle), new { dersId });
         }
 
+        // Admin kullanıcısı jeton satın alamaz — bu action yalnızca normal kullanıcılara açık
+        [Authorize(Roles = "Ogrenci,Egitmen")]
         public IActionResult JetonSatinAl(int? paketId)
         {
             ViewBag.Paketler = JetonPaketleri.Listesi;
@@ -167,28 +218,73 @@ namespace LMSPlatform.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Ogrenci,Egitmen")]
         public async Task<IActionResult> JetonSatinAl(JetonSatinAlViewModel model)
         {
             ViewBag.Paketler = JetonPaketleri.Listesi;
 
-            if (!ModelState.IsValid) return View(model);
-
             var paket = JetonPaketleri.Bul(model.PaketId);
             if (paket == null)
             {
-                ModelState.AddModelError(string.Empty, "Geçersiz paket seçimi.");
+                ModelState.AddModelError("PaketId", "Lütfen bir paket seçin.");
                 return View(model);
             }
+
+            if (!ModelState.IsValid) return View(model);
 
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Challenge();
 
             var dbUser = await _context.Users.FindAsync(user.Id);
             dbUser!.JetonMiktari += paket.Jeton;
+
+            // Jeton satın alma kaydı
+            _context.JetonIslemleri.Add(new JetonIslem
+            {
+                KullaniciId = user.Id,
+                Tur = JetonIslemTuru.Satin,
+                Miktar = paket.Jeton,
+                TLTutar = paket.Fiyat,
+                Aciklama = $"{paket.Ad} paketi — {paket.Jeton} jeton"
+            });
+
             await _context.SaveChangesAsync();
 
             TempData["Basari"] = $"Ödeme başarılı! {paket.Jeton} jeton hesabınıza eklendi.";
             return RedirectToAction(nameof(Dashboard));
+        }
+
+        /// <summary>
+        /// Öğrenci/Eğitmen jeton geçmişi
+        /// </summary>
+        public async Task<IActionResult> JetonGecmisi()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var islemler = await _context.JetonIslemleri
+                .Include(j => j.Kurs)
+                .Where(j => j.KullaniciId == user!.Id)
+                .OrderByDescending(j => j.Tarih)
+                .ToListAsync();
+
+            ViewBag.Kullanici = user;
+            return View(islemler);
+        }
+
+        /// <summary>
+        /// Öğrenci ödeme geçmişi (kurs satın almaları)
+        /// </summary>
+        public async Task<IActionResult> OdemeGecmisi()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var odemeIslemleri = await _context.JetonIslemleri
+                .Include(j => j.Kurs)
+                .Where(j => j.KullaniciId == user!.Id
+                         && (j.Tur == JetonIslemTuru.KursOdeme || j.Tur == JetonIslemTuru.Satin))
+                .OrderByDescending(j => j.Tarih)
+                .ToListAsync();
+
+            ViewBag.Kullanici = user;
+            return View(odemeIslemleri);
         }
     }
 }

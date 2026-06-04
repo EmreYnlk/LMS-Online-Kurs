@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8" />
@@ -16,6 +16,7 @@
         var storedTheme = localStorage.getItem('eduhub_theme') || 'midnight';
         document.documentElement.setAttribute('data-theme', storedTheme);
     </script>
+    @Html.AntiForgeryToken()
 </head>
 <body>
 
@@ -128,7 +129,10 @@
                 @if (User.Identity!.IsAuthenticated)
                 {
                     <li class="nav-item d-none d-lg-flex">
-                        <a asp-controller="Ogrenci" asp-action="JetonSatinAl" class="jeton-pill" title="Jeton satin al"><i class="bi bi-coin"></i><strong>@(ViewBag.JetonMiktari ?? 0)</strong> jeton<i class="bi bi-plus-circle"></i></a>
+                        @if (!User.IsInRole("Admin"))
+                        {
+                            <a asp-controller="Ogrenci" asp-action="JetonSatinAl" class="jeton-pill" title="Jeton satin al"><i class="bi bi-coin"></i><strong>@(ViewBag.JetonMiktari ?? 0)</strong> jeton<i class="bi bi-plus-circle"></i></a>
+                        }
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 pe-0" href="#" data-bs-toggle="dropdown">
@@ -150,8 +154,12 @@
                             <li><a class="dropdown-item" asp-controller="Account" asp-action="Profil">
                                 <i class="bi bi-person"></i>Profilim
                             </a></li>
-                            <li><a class="dropdown-item" asp-controller="Ogrenci" asp-action="JetonSatinAl"><i class="bi bi-coin"></i>Jeton Satin Al</a></li>
-                            <li class="d-lg-none"><a class="dropdown-item" asp-controller="Ogrenci" asp-action="JetonSatinAl"><i class="bi bi-coin"></i>@(ViewBag.JetonMiktari ?? 0) jeton satin al</a></li>
+                            @if (!User.IsInRole("Admin"))
+                            {
+                                <li><a class="dropdown-item" asp-controller="Ogrenci" asp-action="JetonSatinAl"><i class="bi bi-coin"></i>Jeton Satın Al</a></li>
+                            }
+                            <li><a class="dropdown-item" asp-controller="Ogrenci" asp-action="JetonGecmisi"><i class="bi bi-clock-history"></i>Jeton Geçmişi</a></li>
+                            <li><a class="dropdown-item" asp-controller="Ogrenci" asp-action="OdemeGecmisi"><i class="bi bi-receipt"></i>Ödeme Geçmişi</a></li>
                             <li><hr class="dropdown-divider" /></li>
                             <li>
                                 <form asp-controller="Account" asp-action="Logout" method="post">
@@ -223,27 +231,77 @@
                 </div>
                 <p class="footer-desc">Türkiye'nin en kapsamlı online öğrenim platformu. Uzman eğitmenlerle yeni beceriler kazanın, kariyerinize yön verin.</p>
             </div>
+
+            <!-- ── Platform ── -->
             <div class="col-lg-2 col-md-3 col-6">
                 <div class="footer-col-title">Platform</div>
                 <ul class="footer-links">
                     <li><a asp-controller="Home" asp-action="Index">Tüm Kurslar</a></li>
-                    <li><a asp-controller="Account" asp-action="Register">Kayıt Ol</a></li>
-                    <li><a asp-controller="Account" asp-action="Login">Giriş Yap</a></li>
+                    @if (User.Identity!.IsAuthenticated)
+                    {
+                        <li><a asp-controller="Account" asp-action="Profil">Profilim</a></li>
+                        <li><a asp-controller="Ogrenci" asp-action="Dashboard">Kurslarım</a></li>
+                    }
+                    else
+                    {
+                        <li><a asp-controller="Account" asp-action="Register">Kayıt Ol</a></li>
+                        <li><a asp-controller="Account" asp-action="Login">Giriş Yap</a></li>
+                    }
                 </ul>
             </div>
+
+            <!-- ── Eğitmenler ── -->
             <div class="col-lg-2 col-md-3 col-6">
                 <div class="footer-col-title">Eğitmenler</div>
                 <ul class="footer-links">
-                    <li><a asp-controller="Account" asp-action="Register">Eğitmen Ol</a></li>
-                    <li><a asp-controller="Kurs" asp-action="Olustur">Kurs Oluştur</a></li>
+                    @if (!User.Identity!.IsAuthenticated)
+                    {
+                        <!-- Giriş yapılmamış: standart kayıt linkleri -->
+                        <li><a asp-controller="Account" asp-action="Register">Eğitmen Ol</a></li>
+                        <li><a asp-controller="Kurs" asp-action="Olustur">Kurs Oluştur</a></li>
+                    }
+                    else if (User.IsInRole("Egitmen"))
+                    {
+                        <!-- Eğitmen: kendi kursları ve yeni kurs -->
+                        <li><a asp-controller="Kurs" asp-action="Index">Kurslarım</a></li>
+                        <li><a asp-controller="Kurs" asp-action="Olustur">Yeni Kurs Ekle</a></li>
+                    }
+                    else if (User.IsInRole("Admin"))
+                    {
+                        <!-- Admin: yönetim linkleri -->
+                        <li><a asp-controller="Admin" asp-action="TumKurslar">Tüm Kurslar</a></li>
+                        <li><a asp-controller="Admin" asp-action="Kullanicilar">Kullanıcılar</a></li>
+                    }
+                    else
+                    {
+                        <!-- Öğrenci: satın aldığı kurslar -->
+                        <li><a asp-controller="Ogrenci" asp-action="Dashboard">Satın Alınan Kurslarım</a></li>
+                    }
                 </ul>
             </div>
+
+            <!-- ── Platforma Katıl / Hoş Geldin ── -->
             <div class="col-lg-4 col-md-6">
-                <div class="footer-col-title">Platforma Katıl</div>
-                <p style="color:var(--fg-3);font-size:0.845rem;margin-bottom:1rem;line-height:1.6;">500 jeton ile başlayın, binlerce kursu keşfedin.</p>
-                <a asp-controller="Account" asp-action="Register" class="btn btn-primary">
-                    <i class="bi bi-rocket-takeoff me-2"></i>Hemen Başla — Ücretsiz
-                </a>
+                @if (User.Identity!.IsAuthenticated)
+                {
+                    <div class="footer-col-title">Hoş Geldin 👋</div>
+                    <p style="color:var(--fg-3);font-size:0.845rem;margin-bottom:1rem;line-height:1.6;">
+                        Platforma hoş geldin! Videoların tadını çıkar.
+                    </p>
+                    <a asp-controller="Ogrenci" asp-action="Dashboard" class="btn btn-primary">
+                        <i class="bi bi-play-circle me-2"></i>Kurslarıma Git
+                    </a>
+                }
+                else
+                {
+                    <div class="footer-col-title">Platforma Katıl</div>
+                    <p style="color:var(--fg-3);font-size:0.845rem;margin-bottom:1rem;line-height:1.6;">
+                        500 jeton ile başlayın, binlerce kursu keşfedin.
+                    </p>
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-primary">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Hemen Başla — Ücretsiz
+                    </a>
+                }
             </div>
         </div>
         <div class="footer-bottom">
