@@ -47,17 +47,22 @@ ASP.NET Core MVC 8 ile geliştirilmiş Mini-Udemy tarzı bir öğrenme yönetim 
 
 ```bash
 # 1. Repoyu klonla
-git clone https://github.com/emindinc/Online_Kurs-LMS_Platformu.git
-cd Online_Kurs-LMS_Platformu/LMSPlatform
+git clone https://github.com/EmreYnlk/LMS-Online-Kurs.git
+cd LMS-Online-Kurs
 
-# 2. Veritabanını oluştur (migrations zaten mevcut)
+# 2. Bağımlılıkları yükle
+dotnet restore
+
+# 3. Veritabanını oluştur (migrations zaten mevcut, SQLite dosyası otomatik oluşur)
 dotnet ef database update
 
-# 3. Uygulamayı başlat
+# 4. Uygulamayı başlat
 dotnet run
 ```
 
-Uygulama `http://localhost:5000` adresinde açılır.
+> `dotnet ef` komutu yoksa önce yükle: `dotnet tool install --global dotnet-ef`
+
+Uygulama `http://localhost:5090` adresinde açılır.
 
 > İlk çalıştırmada seed data otomatik yüklenir: Admin/Eğitmen/Öğrenci rolleri ve admin hesabı oluşturulur.
 
