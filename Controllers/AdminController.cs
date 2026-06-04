@@ -158,14 +158,60 @@ namespace LMSPlatform.Controllers
             }
 
             var tamAd = user.TamAd;
-            var result = await _userManager.DeleteAsync(user);
-            if (result.Succeeded)
+
+            try
             {
-                TempData["Basari"] = $"{tamAd} kullanıcısı silindi.";
+                // 1. Ders ilerlemeleri (OgrenciId → RESTRICT)
+                var ilerlemeler = _context.DersIlerlemeleri.Where(i => i.OgrenciId == userId);
+                _context.DersIlerlemeleri.RemoveRange(ilerlemeler);
+
+                // 2. Kurs abonelikleri (OgrenciId → RESTRICT)
+                var abonelikler = _context.KursAbonelikler.Where(a => a.OgrenciId == userId);
+                _context.KursAbonelikler.RemoveRange(abonelikler);
+
+                // 3. Kullanıcının kursları (EgitmenId → RESTRICT)
+                //    Önce o kurslara ait abonelikler ve ilerlemeleri de temizle
+                var kursIds = await _context.Kurslar
+                    .Where(k => k.EgitmenId == userId)
+                    .Select(k => k.Id)
+                    .ToListAsync();
+
+                if (kursIds.Any())
+                {
+                    var kursAbonelikler = _context.KursAbonelikler.Where(a => kursIds.Contains(a.KursId));
+                    _context.KursAbonelikler.RemoveRange(kursAbonelikler);
+
+                    var kursIlerlemeleri = _context.DersIlerlemeleri
+                        .Where(i => _context.Dersler
+                            .Where(d => kursIds.Contains(d.KursId))
+                            .Select(d => d.Id)
+                            .Contains(i.DersId));
+                    _context.DersIlerlemeleri.RemoveRange(kursIlerlemeleri);
+
+                    var kurslar = _context.Kurslar.Where(k => k.EgitmenId == userId);
+                    _context.Kurslar.RemoveRange(kurslar);
+                }
+
+                // 4. Jeton işlemleri (CASCADE ile silinir ama önceden silmek daha güvenli)
+                var jetonIslemleri = _context.JetonIslemleri.Where(j => j.KullaniciId == userId);
+                _context.JetonIslemleri.RemoveRange(jetonIslemleri);
+
+                await _context.SaveChangesAsync();
+
+                // 5. Artık kullanıcıyı sil
+                var result = await _userManager.DeleteAsync(user);
+                if (result.Succeeded)
+                {
+                    TempData["Basari"] = $"{tamAd} kullanıcısı ve tüm ilişkili verileri silindi.";
+                }
+                else
+                {
+                    TempData["Hata"] = "Kullanıcı silinirken hata: " + string.Join(", ", result.Errors.Select(e => e.Description));
+                }
             }
-            else
+            catch (Exception ex)
             {
-                TempData["Hata"] = "Kullanıcı silinirken bir hata oluştu: " + string.Join(", ", result.Errors.Select(e => e.Description));
+                TempData["Hata"] = $"Silme işlemi başarısız: {ex.Message}";
             }
 
             return RedirectToAction(nameof(Kullanicilar));
